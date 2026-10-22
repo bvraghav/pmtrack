@@ -219,8 +219,22 @@ class TestCharts(unittest.TestCase):
         one_day = [h("2026-10-22T10:00:00", 5), h("2026-10-22T20:00:00", 11)]
         self.assertTrue(pmtrack.trend(one_day, "all")[0].startswith("_The trend starts"))
         src = "\n".join(pmtrack.trend(one_day + [h("2026-10-23T09:00:00", 22)], "all"))
-        self.assertIn('x-axis ["10-22 · 11%", "10-23 · 22%"]', src)   # last snapshot per day
-        self.assertIn("bar [11, 22]", src)
+        self.assertIn('x-axis ["10-22 · 11%", "10-23 · 22% (+11)"]', src)   # last snapshot per day
+        self.assertIn("bar [0, 11]", src)     # change from the day before
+        self.assertIn("line [11, 22]", src)   # % done, cumulative
+
+    def test_trend_dip_and_window(self):
+        h = lambda d, p: {"date": "2026-10-%02dT10:00:00" % d, "subsets": {"all": {"pct": p}}}
+        src = "\n".join(pmtrack.trend([h(1, 10), h(2, 14), h(3, 12)], "all"))
+        self.assertIn('y-axis "% done" 0 --> 100', src)
+        self.assertIn("bar [0, 4, 0]", src)     # a loss shows in the line, not as a bar
+        self.assertIn("line [10, 14, 12]", src)
+        old, pmtrack.TREND_DAYS = pmtrack.TREND_DAYS, 2
+        try:   # the first day shown still gets its change from the day before it
+            src = "\n".join(pmtrack.trend([h(1, 10), h(2, 14), h(3, 12)], "all"))
+        finally:
+            pmtrack.TREND_DAYS = old
+        self.assertIn('x-axis ["10-02 · 14% (+4)", "10-03 · 12% (-2)"]', src)
 
     def test_long_trend_turns_dates_upright(self):
         h = [{"date": "2026-10-%02dT10:00:00" % d, "subsets": {"all": {"pct": d}}} for d in range(1, 13)]

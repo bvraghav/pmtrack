@@ -571,29 +571,44 @@ def next_up(proj, nodes):
 
 
 TREND_DAYS = 30
+TREND_NOTE = ("_Line: % done at the end of each day. Bars: % points gained that day. "
+              "A dip in the line means scope grew or items reopened._")
 
 
 def trend(history, name):
-    """% done per day (last snapshot of each day) over the last TREND_DAYS
-    days that have data. Bars, because a line over a few points is too thin
-    to read; a trend needs at least two days."""
+    """% done is cumulative, so draw it as a line, with each day's gain as
+    bars on the same % scale. Mermaid draws bars up from the bottom of the
+    axis, so the axis starts at 0 and losses show only in the line (and in
+    the labels, up to ten days). Uses the last snapshot of each day, over
+    the last TREND_DAYS days that have data; a trend needs two days."""
     days = {}
     for h in history:
         if name in h["subsets"]:
             days[h["date"][:10]] = h["subsets"][name]["pct"]
-    pts = sorted(days.items())[-TREND_DAYS:]
-    if len(pts) < 2:
+    all_pts = sorted(days.items())
+    if len(all_pts) < 2:
         return ["_The trend starts once there are two days of history._"]
+    deltas = [0] + [b - a for (_, a), (_, b) in zip(all_pts, all_pts[1:])]
+    pts, deltas = all_pts[-TREND_DAYS:], deltas[-TREND_DAYS:]
     if len(pts) <= 10:
-        label, xy = (lambda d, p: "%s · %d%%" % (d[5:], p)), {"height": 320}
+        first = len(all_pts) == len(pts)   # nothing before the first day to compare with
+        labels = []
+        for i, ((d, p), c) in enumerate(zip(pts, deltas)):
+            labels.append("%s · %d%%" % (d[5:], p) if first and i == 0
+                          else "%s · %d%% (%+d)" % (d[5:], p, c))
+        xy = {"height": 360}
+        if len(pts) > 6:   # value labels are long; slant them
+            xy["xAxis"] = {"labelRotation": -45, "labelFontSize": 12}
     else:   # dates only, turned upright so they don't run into each other
-        label = lambda d, p: d[5:]
-        xy = {"height": 360, "xAxis": {"labelRotation": -90, "labelFontSize": 12}}
-    return ["```mermaid", mermaid_init(xy_theme(), xy), "xychart-beta",
+        labels = [d[5:] for d, _ in pts]
+        xy = {"height": 380, "xAxis": {"labelRotation": -90, "labelFontSize": 12}}
+    theme = {"xyChart": {"plotColorPalette": "%s,%s" % (COLOR["done"][0], COLOR["active"][0])}}
+    return ["```mermaid", mermaid_init(theme, xy), "xychart-beta",
             '  title "%s: %% done by day"' % name.replace('"', "'"),
-            "  x-axis [%s]" % ", ".join(mq(label(d, p)) for d, p in pts),
+            "  x-axis [%s]" % ", ".join(mq(l) for l in labels),
             '  y-axis "% done" 0 --> 100',
-            "  bar [%s]" % ", ".join(str(p) for _, p in pts), "```"]
+            "  bar [%s]" % ", ".join(str(max(c, 0)) for c in deltas),
+            "  line [%s]" % ", ".join(str(p) for _, p in pts), "```", "", TREND_NOTE]
 
 
 def render_overview(proj, date, now, base, history):
