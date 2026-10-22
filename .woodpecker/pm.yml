@@ -1,6 +1,7 @@
-# pmtrack on itself: test, check templates, then refresh the review.
-# A cron job in Woodpecker keeps the review current, since issue edits
-# don't trigger CI. Secret pm_token: forge token with issue read and
+# pmtrack on itself: test, check templates, then refresh the review on
+# branch pm-progress, as in examples/woodpecker-publish.yml but run from
+# source. A cron job in Woodpecker keeps the review current, since issue
+# edits don't trigger CI. Secret pm_token: forge token with issue read and
 # repository write on this repo.
 # The test step installs the package, so packaging is checked too; on a
 # tag or release it also checks the tag matches the version. Templates
@@ -37,11 +38,17 @@ steps:
     environment:
       PM_TOKEN:
         from_secret: pm_token
+      PM_BRANCH: pm-progress
     commands:
       - apk add -q git
       - pip install -q --root-user-action=ignore pyyaml
-      - python3 pmtrack.py review
+      - REMOTE="https://oauth2:$${PM_TOKEN}@$${CI_FORGE_URL#*://}/$${CI_REPO}.git"
+      - git init -q /tmp/pub
+      - git ls-remote --heads "$${REMOTE}" "$${PM_BRANCH}" > /tmp/heads
+      - 'if [ -s /tmp/heads ]; then git -C /tmp/pub fetch -q --depth 1 "$${REMOTE}" "$${PM_BRANCH}" && git -C /tmp/pub checkout -q -b "$${PM_BRANCH}" FETCH_HEAD; else git -C /tmp/pub checkout -q --orphan "$${PM_BRANCH}"; fi'
+      - python3 pmtrack.py review --publish /tmp/pub --ref "$${CI_COMMIT_BRANCH}"
+      - cd /tmp/pub
       - git add -A
       - git diff --cached --quiet && exit 0
       - 'git -c user.name=pmtrack -c user.email=pmtrack@noreply.invalid commit -qm "progress: update review [CI SKIP]"'
-      - git push "https://oauth2:$${PM_TOKEN}@$${CI_FORGE_URL#*://}/$${CI_REPO}.git" "HEAD:$${CI_COMMIT_BRANCH}"
+      - git push -q "$${REMOTE}" "HEAD:$${PM_BRANCH}"

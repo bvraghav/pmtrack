@@ -117,6 +117,12 @@ class TestForge(unittest.TestCase):
         f._get = lambda path, params: next(pages)
         self.assertEqual([i["number"] for i in f.issues()], [1])
 
+
+    def test_file_url(self):
+        u = lambda kind: pmtrack.Forge(kind, "https://x.example/", "o/r").file_url("docs/a.md", "dev")
+        self.assertEqual(u("forgejo"), "https://x.example/o/r/src/branch/dev/docs/a.md")
+        self.assertEqual(u("github"), "https://x.example/o/r/blob/dev/docs/a.md")
+        self.assertEqual(u("gitlab"), "https://x.example/o/r/-/blob/dev/docs/a.md")
     def test_gitlab_normalise(self):
         f = pmtrack.Forge("gitlab", "https://g", "grp/r")
         n = f.normalise({"iid": 3, "title": "t", "description": None, "state": "opened",
@@ -214,6 +220,24 @@ class TestReview(Base):
         self.assertEqual(before, {p: p.read_text() for p in out.iterdir()})
         self.assertEqual(len((out / "history.jsonl").read_text().splitlines()), 1)
 
+
+    def test_publish_writes_elsewhere_and_leaves_docs(self):
+        pub = self.root / "pub"
+        before = (self.root / "docs/auth.md").read_text()
+        args = ("--publish", str(pub), "--ref", "main")
+        self.run_review("2026-10-21T10:00:00", *args)
+        self.assertEqual((self.root / "docs/auth.md").read_text(), before)
+        self.assertFalse((self.root / "progress").exists())
+        self.assertTrue((pub / "history.jsonl").exists())
+        page = (pub / "auth.md").read_text()
+        self.assertIn("[doc](https://f.example/o/app/src/branch/main/docs/auth.md)", page)
+        self.assertIn("(https://f.example/o/app/src/branch/main/docs/auth.md)",
+                      (pub / "README.md").read_text())
+        stamp = (pub / "README.md").stat().st_mtime_ns
+        self.run_review("2026-10-21T11:00:00", *args)     # same data: nothing written
+        self.assertEqual((pub / "README.md").stat().st_mtime_ns, stamp)
+        with self.assertRaises(SystemExit):
+            self.run_review("2026-10-21T12:00:00", "--publish", str(pub))
     def test_changes_since_baseline(self):
         self.run_review("2026-10-10T10:00:00+00:00")
         ISSUES["o/app"][1]["state"] = "closed"

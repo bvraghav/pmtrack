@@ -60,7 +60,8 @@ the plan in `pm.plan`. This is the link from plan to actionables: a plan
 declares a label query, and issues opt in by label or by name.
 
 A plan doc can show its own progress: put this pair anywhere in it and
-`review` fills the space between them.
+`review` fills the space between them (not with `--publish`, which leaves
+docs alone).
 
 ```markdown
 <!-- pm:progress -->
@@ -97,7 +98,7 @@ share of its `- [ ]` boxes that are ticked.
 
 ## The review
 
-`pmtrack review` writes to `progress/`:
+`pmtrack review` writes to `progress/` (or to DIR with `--publish DIR`):
 
 - `README.md`: a bar chart of % done for every subset (all items,
   `subsets` from the config, and each label) and every plan, a status pie,
@@ -169,26 +170,38 @@ graph_limit: 80                # above this many nodes, warn and skip the graph
 Install a tagged version straight from the repo; pyyaml comes with it:
 
 ```sh
-pip install "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.1"
+pip install "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.2"
 # or run it without installing:
-uvx --from "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.1" pmtrack review
+uvx --from "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.2" pmtrack review
 ```
 
 pmtrack is a single file, so copying `pmtrack.py` (from
-`…/pm-bot/pmtrack/raw/tag/v0.1.1/pmtrack.py`) and installing pyyaml works
+`…/pm-bot/pmtrack/raw/tag/v0.1.2/pmtrack.py`) and installing pyyaml works
 too. It isn't on PyPI.
 
 ## Running
 
 ```sh
 PM_TOKEN=… pmtrack templates [--check]
-PM_TOKEN=… pmtrack review [--dry-run] [--strict]
+PM_TOKEN=… pmtrack review [--dry-run] [--strict] [--publish DIR --ref BRANCH]
 python3 -m unittest discover -s tests     # from a checkout
 ```
 
-For CI, `examples/woodpecker.yml` runs the review on push and on a
-schedule, and commits `progress/` back. Issue edits don't trigger CI on
-any forge, so the schedule is what keeps the review current.
+## In CI
+
+Issue edits don't trigger CI on any forge, so run the review on a
+schedule as well as on push. There are two Woodpecker examples:
+
+- `examples/woodpecker-publish.yml` (suggested): CI keeps the review on
+  its own branch, `pm-progress`, and never commits to working branches,
+  so developers have nothing to pull. It runs
+  `pmtrack review --publish DIR --ref BRANCH`, which writes the review and
+  `history.jsonl` into DIR (a checkout of the review branch) and links plan
+  docs on BRANCH through the forge's web pages. Plan docs' progress blocks
+  aren't filled; link to the plan's page on the review branch instead,
+  e.g. `…/src/branch/pm-progress/<plan-id>.md` on Forgejo.
+- `examples/woodpecker.yml`: CI commits `progress/` and the plan docs'
+  progress blocks back to the branch it ran on.
 
 ## Status of forge support
 
