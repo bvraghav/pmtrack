@@ -1,6 +1,6 @@
 # ✓ Core
 
-_Plan `core` · [doc](../docs/core.md) · data as of 2026-10-22 22:22 UTC · [all subsets](README.md)_
+_Plan `core` · [doc](../docs/core.md) · data as of 2026-10-22 22:31 UTC · [all subsets](README.md)_
 
 **100% done** · ✓ 3 done · ▶ 0 active · ○ 0 ready · ✕ 0 blocked
 
@@ -18,7 +18,7 @@ pie showData title Items by status
 
 ## Changes
 
-From 2026-10-22 20:30 to 2026-10-22 22:22 UTC:
+From 2026-10-22 20:30 to 2026-10-22 22:31 UTC:
 
 - ✓ done: [#2](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/2) Plan pages name the plans they wait on
 - new (done): [#10](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/10) Keep the dependency graph readable with many items
