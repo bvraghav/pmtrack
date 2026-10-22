@@ -196,3 +196,8 @@ Forgejo is tested against a live server. Gitea uses the same API. The
 GitHub and GitLab readers follow their documented APIs but haven't been
 run against them yet, and neither has the rendering of issue frontmatter
 or `xychart-beta` there.
+
+## Licence
+
+MIT, see [LICENCE.md](LICENCE.md). Changes are listed in
+[CHANGELOG.md](CHANGELOG.md).
