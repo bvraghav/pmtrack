@@ -160,6 +160,19 @@ class TestStatus(Base):
         self.assertIsNone(p.resolve("https://elsewhere/x/y/issues/1"))
 
 
+    def test_graph_over_limit_warns_and_is_skipped(self):
+        import contextlib, io
+        p = self.project()
+        keys = [k for k, n in p.nodes.items() if n.repo == ""]
+        drawn = pmtrack.graph_section(p, keys, 100, "x.md")
+        self.assertIn("```mermaid", drawn)
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            out = pmtrack.graph_section(p, keys, 2, "x.md")
+        self.assertNotIn("```mermaid", "\n".join(out))
+        self.assertIn("graph_limit", out[0])
+        self.assertIn("warning: x.md", err.getvalue())
+
 class TestReview(Base):
     def test_writes_and_is_stable(self):
         self.assertEqual(self.run_review("2026-10-21T10:00:00+00:00"), 0)

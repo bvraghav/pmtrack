@@ -499,14 +499,21 @@ def delta(now_pct, base, name):
     return "±0" if d == 0 else "%+d" % d
 
 
-def mermaid_graph(proj, keys, limit):
+def graph_section(proj, keys, limit, where):
+    """The legend and graph, or a note when the graph has too many nodes."""
     keys = [k for k in keys if proj.nodes[k].status != "dropped"]
-    if len(keys) > limit:   # keep it readable: open work and what it waits on
-        keys = [k for k in keys if proj.nodes[k].status not in ("done", "dropped")]
-        keys = keys[:limit]
     shown = set(keys)
-    for k in list(keys):
+    for k in keys:
         shown |= set(proj.edges.get(k, []))
+    if len(shown) > limit:
+        print("warning: %s: dependency graph has %d nodes, over graph_limit %d; "
+              "not drawn" % (where, len(shown), limit), file=sys.stderr)
+        return ["_The graph has %d nodes, more than `graph_limit` (%d), so it "
+                "isn't drawn. Raise `graph_limit` in `.pm.yml` to draw it._" % (len(shown), limit)]
+    return [LEGEND, ""] + mermaid_graph(proj, shown)
+
+
+def mermaid_graph(proj, shown):
     ids = {k: "n%d" % i for i, k in enumerate(sorted(shown))}
     lines = ["```mermaid", "flowchart LR"]
     for k in sorted(shown):
@@ -679,9 +686,9 @@ def render_overview(proj, date, now, base, history):
     L += ["", "## Needs attention", ""] + attention_section(proj, issues, now, out)
     L += ["", "## Next up", "", "_Ready items, those that unblock the most first._", ""]
     L += next_up(proj, issues)
-    L += ["", "## Dependency graph", "", LEGEND, ""]
-    L += mermaid_graph(proj, [n.key for n in issues] + [p.key for p in plans],
-                       proj.cfg["graph_limit"])
+    L += ["", "## Dependency graph", ""]
+    L += graph_section(proj, [n.key for n in issues] + [p.key for p in plans],
+                       proj.cfg["graph_limit"], "README.md")
     L += ["", "## Trend", ""] + trend(history, "all")
     return "\n".join(L) + "\n"
 
@@ -705,8 +712,8 @@ def render_plan(proj, plan, date, now, base, history):
     L += ["", "## Changes", ""] + changes_section(proj, ms, base, date)
     L += ["", "## Needs attention", ""] + attention_section(proj, ms, now, out)
     L += ["", "## Next up", ""] + next_up(proj, ms)
-    L += ["", "## Dependency graph", "", LEGEND, ""]
-    L += mermaid_graph(proj, [n.key for n in ms], proj.cfg["graph_limit"])
+    L += ["", "## Dependency graph", ""]
+    L += graph_section(proj, [n.key for n in ms], proj.cfg["graph_limit"], plan.id + ".md")
     L += ["", "## Trend", ""] + trend(history, "plan:" + plan.id)
     return "\n".join(L) + "\n"
 

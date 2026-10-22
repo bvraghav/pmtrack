@@ -159,7 +159,7 @@ remotes:
   lib: {forge: gitlab, url: https://gitlab.com, repo: group/lib}
 stale_days: 14                 # active but not updated for this long
 window_days: 7                 # review window for changes and deltas
-graph_limit: 80                # above this, the graph shows open items only
+graph_limit: 80                # above this many nodes, warn and skip the graph
 ```
 
 ## Running
