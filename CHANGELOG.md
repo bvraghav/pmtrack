@@ -6,9 +6,17 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-23
+
 ### Added
 
 - MIT licence (`LICENCE.md`) and this changelog.
+
+### Changed
+
+- pmtrack's own CI installs the package before testing, and also tests
+  on tags and releases, checking the tag matches the version.
+- Example pipeline and README install `v0.1.1`.
 
 ## [0.1.0] - 2026-10-23
 
@@ -40,5 +48,6 @@ First release.
   committing `progress/` back.
 - Install from a git tag with pip or uv; `pmtrack` command.
 
-[Unreleased]: https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/compare/v0.1.0...develop
+[Unreleased]: https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/compare/v0.1.1...develop
+[0.1.1]: https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/src/tag/v0.1.1
 [0.1.0]: https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/src/tag/v0.1.0
