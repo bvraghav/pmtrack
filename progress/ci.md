@@ -1,12 +1,10 @@
-# ✕ CI
+# ▶ CI
 
-_Plan `ci` · [doc](../docs/ci.md) · data as of 2026-10-22 21:57 UTC · [all subsets](README.md)_
+_Plan `ci` · [doc](../docs/ci.md) · data as of 2026-10-22 22:10 UTC · [all subsets](README.md)_
 
 **33% done** · ✓ 1 done · ▶ 0 active · ○ 1 ready · ✕ 1 blocked
 
-Depends on: ▶ [Core](../docs/core.md)
-
-**✕ Blocked**, waiting on ▶ [Core](../docs/core.md)
+Depends on: ✓ [Core](../docs/core.md)
 
 ```mermaid
 %%{init: {"themeVariables": {"pie1": "#0ca30c", "pie2": "#eda100", "pie3": "#d03b3b", "pieOpacity": "1", "pieSectionTextColor": "#000", "pieStrokeColor": "#fff", "pieStrokeWidth": "2px", "pieOuterStrokeWidth": "0px"}}}%%
@@ -24,7 +22,7 @@ pie showData title Items by status
 
 ## Changes
 
-From 2026-10-22 20:30 to 2026-10-22 21:57 UTC:
+From 2026-10-22 20:30 to 2026-10-22 22:10 UTC:
 
 - ✓ done: [#7](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/7) Scheduled review on Woodpecker
 - blocked → ready: [#9](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/9) Install pmtrack without copying the file
