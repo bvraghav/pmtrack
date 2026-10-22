@@ -1,0 +1,37 @@
+# pmtrack on itself: test, check templates, then refresh the review.
+# A cron job in Woodpecker keeps the review current, since issue edits
+# don't trigger CI. Secret pm_token: forge token with issue read and
+# repository write on this repo.
+when:
+  - event: [cron, manual]
+  - event: push
+    branch: ${CI_REPO_DEFAULT_BRANCH}
+
+steps:
+  - name: test
+    image: python:3.13-alpine
+    when:
+      - event: [push, manual]
+    commands:
+      - pip install -q --root-user-action=ignore pyyaml
+      - python3 -m unittest discover -s tests
+
+  - name: templates
+    image: python:3.13-alpine
+    commands:
+      - pip install -q --root-user-action=ignore pyyaml
+      - python3 pmtrack.py templates --check
+
+  - name: review
+    image: python:3.13-alpine
+    environment:
+      PM_TOKEN:
+        from_secret: pm_token
+    commands:
+      - apk add -q git
+      - pip install -q --root-user-action=ignore pyyaml
+      - python3 pmtrack.py review
+      - git add -A
+      - git diff --cached --quiet && exit 0
+      - git -c user.name=pmtrack -c user.email=pmtrack@noreply.invalid commit -qm "progress: update review [CI SKIP]"
+      - git push "https://oauth2:$${PM_TOKEN}@$${CI_FORGE_URL#*://}/$${CI_REPO}.git" "HEAD:$${CI_COMMIT_BRANCH}"
