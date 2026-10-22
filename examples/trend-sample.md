@@ -53,3 +53,16 @@ _Grey line: items in scope. Blue line: items done, weighted, with partial credit
 With a single day of history the review shows this note instead:
 
 _The trend starts once there are two days of history._
+
+## Wild sample
+
+``` mermaid
+%%{init: {"themeVariables": {"xyChart": {"plotColorPalette": "#0ca30c,#ffffff,#2a78d6,#ffffff"}}, "xyChart": {"height": 380, "xAxis": {"labelRotation": -90, "labelFontSize": 12}}}}%%
+xychart-beta
+  title "all: items done and scope"
+  y-axis "items" -5 --> 27
+  bar [0,5,-100,8]
+  bar [0,0,-100,0]
+  bar [-100,-100, 0, -100]
+  bar [-100,-100,-5,-100]
+```
