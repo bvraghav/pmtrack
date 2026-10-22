@@ -104,11 +104,12 @@ share of its `- [ ]` boxes that are ticked.
   a table with counts and the change since the review window began,
   what changed, what needs attention (blocked, stale, metadata problems),
   what to start next (ready items, those that unblock most first), the
-  dependency graph and a burn-up by day (items in scope, items done and
-  items finished each day; from the second day).
-  Charts set their own data colours (green bars, one fixed colour per
-  status in pies, grey scope and blue done lines) and leave text colours to the forge's theme, so they
-  read in light and dark mode. Values sit in the bar labels.
+  dependency graph and a burn-up by day (items in scope, items done, and
+  each day's gain or loss as bars; from the second day).
+  Pies use one fixed colour per status. Bar and line charts are drawn on
+  a white card with dark text in both light and dark mode: Mermaid draws
+  every bar from below 0, so a background-coloured bar at 0 is drawn over
+  it, and that needs a known background. Values sit in the bar labels.
 - `<plan-id>.md`: the same for one plan, item by item.
 - `history.jsonl`: one line per change of state, which drives the
   change lists, the deltas and the trend.

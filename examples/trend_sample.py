@@ -26,7 +26,7 @@ def history(pcts, scopes, start):
     return out
 
 
-SHORT = [4, 9, 9, 15, 13, 22, 31, 38]           # % done
+SHORT = [4, 9, 7, 15, 13, 22, 31, 38]           # % done; 10-18: an item reopened
 SHORT_SCOPE = [20, 20, 20, 20, 24, 24, 24, 24]  # 10-20: four new items
 LONG = [0, 2, 2, 5, 8, 8, 8, 11, 14, 18, 18, 21, 25, 25, 24, 27, 31, 35, 35, 35,
         40, 44, 47, 47, 52, 58, 61, 61, 66, 71]
@@ -41,9 +41,12 @@ L = ["---", "title: Trend sample", "subtitle: The review's trend chart, drawn fr
      "The chart is a burn-up in items. % done mixes two things, work finishing",
      "and scope growing; counted in items, scope growth shows as the grey line",
      "stepping up, not as lost work.", "",
+     "The numbers are made up and picked to show each case: work done, an",
+     "item reopened, and scope growing.", "",
      "## Eight days", "",
-     "Up to ten days, each label carries items done out of scope. On 10-20",
-     "four items came in: the grey line steps up and the blue one keeps going.", ""]
+     "Up to ten days, each label carries items done out of scope. On 10-18",
+     "an item was reopened: a red bar below 0 and a dip in the blue line. On",
+     "10-20 four items came in: the grey line steps up.", ""]
 L += pmtrack.trend(history(SHORT, SHORT_SCOPE, "2026-10-16"), "all")
 L += ["", "## Thirty days", "", "Past ten days, labels are dates only; read values off the axis.", ""]
 L += pmtrack.trend(history(LONG, SCOPE, "2026-09-23"), "all")

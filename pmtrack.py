@@ -13,6 +13,7 @@ import argparse
 import datetime as dt
 import fnmatch
 import json
+import math
 import os
 import re
 import sys
@@ -414,8 +415,19 @@ def mermaid_init(theme=None, xy=None):
     return "%%%%{init: %s}%%%%" % json.dumps(cfg, ensure_ascii=False)
 
 
-def xy_theme():
-    return {"xyChart": {"plotColorPalette": COLOR["done"][0]}}
+CARD = "#ffffff"   # xychart background, fixed so masks match it in light and dark
+INK = "#222222"
+
+
+def xy_theme(*plots):
+    """Colours for an xychart: one per plot, in order. The background and
+    text are fixed (a white card in dark mode too), because the bar masks
+    below must be exactly the background colour."""
+    t = {"backgroundColor": CARD, "titleColor": INK, "plotColorPalette": ",".join(plots)}
+    for axis in ("x", "y"):
+        for part in ("Label", "Title", "Tick", "Line"):
+            t["%sAxis%sColor" % (axis, part)] = INK
+    return {"xyChart": t}
 
 
 def num(x):
@@ -424,12 +436,17 @@ def num(x):
     return str(int(x)) if x == int(x) else str(x)
 
 
-def bars(values, span):
-    """Mermaid bar data. Mermaid puts 0 a few pixels inside the plot edge but
-    draws bars from the edge, so a zero would still show a stub. A value a
-    whole axis span below 0 gives the bar a negative size, which browsers
-    don't draw."""
-    return "[%s]" % ", ".join(num(v) if v > 0 else str(-span) for v in values)
+def masked_bars(values):
+    """Bars that start at 0. Mermaid puts 0 a few pixels inside the plot
+    edge but draws every bar from the edge, so each bar has a stub below 0
+    and a zero still shows. Bars are drawn in the order declared, so a
+    background-coloured bar at 0 drawn next hides everything below 0.
+    Losses work the same way below 0: a bar up to 0, then a mask down to
+    the loss. Every value is a true one: gains, 0, 0, losses. Colours:
+    xy_theme(gain, CARD, loss, CARD, ...)."""
+    row = lambda vs: "  bar [%s]" % ", ".join(num(v) for v in vs)
+    zero = [0] * len(values)
+    return [row(max(v, 0) for v in values), row(zero), row(zero), row(min(v, 0) for v in values)]
 
 
 def bar_chart(rows, title="% done"):
@@ -439,11 +456,11 @@ def bar_chart(rows, title="% done"):
     if not rows:
         return []
     return ["```mermaid",
-            mermaid_init(xy_theme(), {"height": 90 + 45 * len(rows)}),
+            mermaid_init(xy_theme(COLOR["done"][0], CARD),
+                         {"height": 90 + 45 * len(rows)}),
             "xychart-beta horizontal", "  title %s" % mq(title),
             "  x-axis [%s]" % ", ".join(mq("%s · %d%%" % (n, p)) for n, p in rows),
-            '  y-axis "% done" 0 --> 100',
-            "  bar " + bars([p for _, p in rows], 100), "```"]
+            '  y-axis "% done" 0 --> 100'] + masked_bars([p for _, p in rows])[:2] + ["```"]
 
 
 def pie_chart(c, title):
@@ -586,27 +603,29 @@ def next_up(proj, nodes):
 
 TREND_DAYS = 30
 TREND_NOTE = ("_Grey line: items in scope. Blue line: items done, weighted, with partial "
-              "credit for ticked boxes. Bars: items finished that day. A step up in the "
-              "grey line means scope grew; a dip in the blue one means items reopened._")
+              "credit for ticked boxes. Green bars: items done that day. Red bars below 0: "
+              "items done that were lost that day (reopened, or boxes unticked). A step up "
+              "in the grey line means scope grew._")
 
 
 def trend(history, name):
-    """Burn-up in items: scope and items done as lines, each day's gain as
-    bars. Counting in items keeps scope growth apart from work done, which
-    a % done line mixes up. Items done is % done times items, so it carries
-    weights and partial credit. Uses the last snapshot of each day, over
-    the last TREND_DAYS days that have data; a trend needs two days."""
+    """Burn-up in items: scope and items done as lines, each day's change
+    as bars, gains up and losses down. Counting in items keeps scope growth
+    apart from work done, which a % done line mixes up. Items done is
+    % done times items, so it carries weights and partial credit. Uses the
+    last snapshot of each day, over the last TREND_DAYS days that have
+    data; a trend needs two days."""
     days = {}
     for h in history:
         s = h["subsets"].get(name)
         if s:
             total = s.get("total", 0)
-            days[h["date"][:10]] = (s["pct"] * total / 100, total)
+            days[h["date"][:10]] = (round(s["pct"] * total / 100, 1), total)
     all_pts = sorted(days.items())
     if len(all_pts) < 2:
         return ["_The trend starts once there are two days of history._"]
-    gains = [0] + [b[0] - a[0] for (_, a), (_, b) in zip(all_pts, all_pts[1:])]
-    pts, gains = all_pts[-TREND_DAYS:], gains[-TREND_DAYS:]
+    changes = [0] + [round(b[0] - a[0], 1) for (_, a), (_, b) in zip(all_pts, all_pts[1:])]
+    pts, changes = all_pts[-TREND_DAYS:], changes[-TREND_DAYS:]
     if len(pts) <= 10:
         labels = ["%s · %s/%s" % (d[5:], num(done), scope) for d, (done, scope) in pts]
         xy = {"height": 360}
@@ -617,16 +636,18 @@ def trend(history, name):
         xy = {"height": 380, "xAxis": {"labelRotation": -90, "labelFontSize": 12}}
     top = max(scope for _, (_, scope) in pts)
     ymax = top + max(2, -(-top // 10))
-    theme = {"xyChart": {"plotColorPalette": "%s,%s,%s" % (
-        COLOR["done"][0], COLOR["unknown"][0], COLOR["active"][0])}}
-    return ["```mermaid", mermaid_init(theme, xy), "xychart-beta",
-            '  title "%s: items done and scope"' % name.replace('"', "'"),
-            "  x-axis [%s]" % ", ".join(mq(l) for l in labels),
-            '  y-axis "items" 0 --> %d' % ymax,
-            "  bar " + bars(gains, ymax),
-            "  line [%s]" % ", ".join(str(scope) for _, (_, scope) in pts),
-            "  line [%s]" % ", ".join(num(done) for _, (done, _) in pts),
-            "```", "", TREND_NOTE]
+    lost = min(changes)
+    ymin = math.floor(lost) if lost < 0 else 0
+    theme = xy_theme(COLOR["done"][0], CARD, COLOR["blocked"][0], CARD,
+                     COLOR["unknown"][0], COLOR["active"][0])
+    return (["```mermaid", mermaid_init(theme, xy), "xychart-beta",
+             '  title "%s: items done and scope"' % name.replace('"', "'"),
+             "  x-axis [%s]" % ", ".join(mq(l) for l in labels),
+             '  y-axis "items" %d --> %d' % (ymin, ymax)]
+            + masked_bars(changes)
+            + ["  line [%s]" % ", ".join(str(scope) for _, (_, scope) in pts),
+               "  line [%s]" % ", ".join(num(done) for _, (done, _) in pts),
+               "```", "", TREND_NOTE])
 
 
 def render_overview(proj, date, now, base, history):
