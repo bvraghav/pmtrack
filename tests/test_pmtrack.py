@@ -212,32 +212,35 @@ class TestCharts(unittest.TestCase):
     def test_bar_labels_carry_values(self):
         src = "\n".join(pmtrack.bar_chart([("all", 22), ("x", 0)]))
         self.assertIn('x-axis ["all · 22%", "x · 0%"]', src)
+        self.assertIn("bar [22, -100]", src)   # zero bars pushed off the plot, not drawn
         self.assertIn("plotColorPalette", src)
 
     def test_trend_by_day(self):
-        h = lambda d, p: {"date": d, "subsets": {"all": {"pct": p}}}
-        one_day = [h("2026-10-22T10:00:00", 5), h("2026-10-22T20:00:00", 11)]
+        h = lambda d, p, t=10: {"date": d, "subsets": {"all": {"pct": p, "total": t}}}
+        one_day = [h("2026-10-22T10:00:00", 5), h("2026-10-22T20:00:00", 20)]
         self.assertTrue(pmtrack.trend(one_day, "all")[0].startswith("_The trend starts"))
-        src = "\n".join(pmtrack.trend(one_day + [h("2026-10-23T09:00:00", 22)], "all"))
-        self.assertIn('x-axis ["10-22 · 11%", "10-23 · 22% (+11)"]', src)   # last snapshot per day
-        self.assertIn("bar [0, 11]", src)     # change from the day before
-        self.assertIn("line [11, 22]", src)   # % done, cumulative
+        src = "\n".join(pmtrack.trend(one_day + [h("2026-10-23T09:00:00", 25, 12)], "all"))
+        self.assertIn('x-axis ["10-22 · 2/10", "10-23 · 3/12"]', src)   # last snapshot per day
+        self.assertIn('y-axis "items" 0 --> 14', src)
+        self.assertIn("bar [-14, 1]", src)      # items finished that day; none: not drawn
+        self.assertIn("line [10, 12]", src)     # scope
+        self.assertIn("line [2, 3]", src)       # items done
 
-    def test_trend_dip_and_window(self):
-        h = lambda d, p: {"date": "2026-10-%02dT10:00:00" % d, "subsets": {"all": {"pct": p}}}
-        src = "\n".join(pmtrack.trend([h(1, 10), h(2, 14), h(3, 12)], "all"))
-        self.assertIn('y-axis "% done" 0 --> 100', src)
-        self.assertIn("bar [0, 4, 0]", src)     # a loss shows in the line, not as a bar
-        self.assertIn("line [10, 14, 12]", src)
+    def test_trend_partial_credit_reopen_and_window(self):
+        h = lambda d, p: {"date": "2026-10-%02dT10:00:00" % d, "subsets": {"all": {"pct": p, "total": 4}}}
+        src = "\n".join(pmtrack.trend([h(1, 25), h(2, 50), h(3, 30)], "all"))
+        self.assertIn("bar [-6, 1, -6]", src)        # a reopen shows in the line, not as a bar
+        self.assertIn("line [1, 2, 1.2]", src)       # partial credit, one decimal
         old, pmtrack.TREND_DAYS = pmtrack.TREND_DAYS, 2
-        try:   # the first day shown still gets its change from the day before it
-            src = "\n".join(pmtrack.trend([h(1, 10), h(2, 14), h(3, 12)], "all"))
+        try:   # the first day shown still gets its gain from the day before it
+            src = "\n".join(pmtrack.trend([h(1, 25), h(2, 50), h(3, 30)], "all"))
         finally:
             pmtrack.TREND_DAYS = old
-        self.assertIn('x-axis ["10-02 · 14% (+4)", "10-03 · 12% (-2)"]', src)
+        self.assertIn("bar [1, -6]", src)
 
     def test_long_trend_turns_dates_upright(self):
-        h = [{"date": "2026-10-%02dT10:00:00" % d, "subsets": {"all": {"pct": d}}} for d in range(1, 13)]
+        h = [{"date": "2026-10-%02dT10:00:00" % d, "subsets": {"all": {"pct": d, "total": 5}}}
+             for d in range(1, 13)]
         src = "\n".join(pmtrack.trend(h, "all"))
         self.assertIn('"labelRotation": -90', src)
         self.assertIn('"10-12"', src)
