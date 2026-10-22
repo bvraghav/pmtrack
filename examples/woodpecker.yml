@@ -1,0 +1,31 @@
+# pmtrack for Woodpecker CI: copy to .woodpecker/pm.yml in the project.
+#
+# Issue edits don't trigger CI, so also add a cron job for this repo in
+# Woodpecker (Repo settings -> Cron), e.g. hourly. Needs one secret:
+#   pm_token: a forge token with issue read + repository write on this repo
+#             (and issue read on any remotes in .pm.yml).
+when:
+  - event: [cron, manual]
+  - event: push
+    branch: ${CI_REPO_DEFAULT_BRANCH}
+
+steps:
+  - name: templates
+    image: python:3.13-alpine
+    commands:
+      - pip install -q --root-user-action=ignore pyyaml
+      - python3 tools/pmtrack.py templates --check
+
+  - name: review
+    image: python:3.13-alpine
+    environment:
+      PM_TOKEN:
+        from_secret: pm_token
+    commands:
+      - apk add -q git
+      - pip install -q --root-user-action=ignore pyyaml
+      - python3 tools/pmtrack.py review
+      - git add -A
+      - git diff --cached --quiet && exit 0
+      - git -c user.name=pmtrack -c user.email=pmtrack@noreply.invalid commit -qm "progress: update review [CI SKIP]"
+      - git push "https://oauth2:$${PM_TOKEN}@$${CI_FORGE_URL#*://}/$${CI_REPO}.git" "HEAD:$${CI_COMMIT_BRANCH}"
