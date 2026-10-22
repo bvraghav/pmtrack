@@ -1,29 +1,29 @@
 # ▶ Forges
 
-_Plan `forges` · [doc](../docs/forges.md) · data as of 2026-10-22 21:14 UTC · [all subsets](README.md)_
+_Plan `forges` · [doc](../docs/forges.md) · data as of 2026-10-22 21:57 UTC · [all subsets](README.md)_
 
-**19% done** · ✓ 0 done · ▶ 1 active · ○ 2 ready · ✕ 1 blocked
+**25% done** · ✓ 1 done · ▶ 0 active · ○ 2 ready · ✕ 1 blocked
 
 ```mermaid
-%%{init: {"themeVariables": {"pie1": "#2a78d6", "pie2": "#eda100", "pie3": "#d03b3b", "pieOpacity": "1", "pieSectionTextColor": "#000", "pieStrokeColor": "#fff", "pieStrokeWidth": "2px", "pieOuterStrokeWidth": "0px"}}}%%
+%%{init: {"themeVariables": {"pie1": "#0ca30c", "pie2": "#eda100", "pie3": "#d03b3b", "pieOpacity": "1", "pieSectionTextColor": "#000", "pieStrokeColor": "#fff", "pieStrokeWidth": "2px", "pieOuterStrokeWidth": "0px"}}}%%
 pie showData title Items by status
-  "▶ active" : 1
+  "✓ done" : 1
   "○ ready" : 2
   "✕ blocked" : 1
 ```
 
 | Item | Status | Ticked | Depends on |
 |---|---|--:|---|
-| [#3](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/3) Check that Forgejo draws the review charts | ▶ active | 3/4 |  |
+| [#3](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/3) Check that Forgejo draws the review charts | ✓ done | 3/4 |  |
 | [#4](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/4) Run the GitHub reader against a live repo | ○ ready | 0/2 |  |
 | [#5](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/5) Run the GitLab reader against a live project | ○ ready | 0/2 |  |
 | [#6](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/6) Check frontmatter and Mermaid rendering on GitHub and GitLab | ✕ blocked | 0/2 | ○ #4, ○ #5 |
 
 ## Changes
 
-From 2026-10-22 20:30 to 2026-10-22 21:14 UTC:
+From 2026-10-22 20:30 to 2026-10-22 21:57 UTC:
 
-- ready → active: [#3](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/3) Check that Forgejo draws the review charts
+- ✓ done: [#3](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/3) Check that Forgejo draws the review charts
 
 ## Needs attention
 
@@ -43,7 +43,7 @@ _Legend: ✓ done · ▶ active (assigned or partly ticked) · ○ ready (nothin
 
 ```mermaid
 flowchart LR
-  n0["▶ #3 Check that Forgejo draws the re…"]:::active
+  n0["✓ #3 Check that Forgejo draws the re…"]:::done
   n1["○ #4 Run the GitHub reader against a…"]:::ready
   n2["○ #5 Run the GitLab reader against a…"]:::ready
   n3["✕ #6 Check frontmatter and Mermaid r…"]:::blocked

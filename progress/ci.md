@@ -1,6 +1,6 @@
 # ✕ CI
 
-_Plan `ci` · [doc](../docs/ci.md) · data as of 2026-10-22 21:14 UTC · [all subsets](README.md)_
+_Plan `ci` · [doc](../docs/ci.md) · data as of 2026-10-22 21:57 UTC · [all subsets](README.md)_
 
 **33% done** · ✓ 1 done · ▶ 0 active · ○ 1 ready · ✕ 1 blocked
 
@@ -20,7 +20,7 @@ pie showData title Items by status
 
 ## Changes
 
-From 2026-10-22 20:30 to 2026-10-22 21:14 UTC:
+From 2026-10-22 20:30 to 2026-10-22 21:57 UTC:
 
 - ✓ done: [#7](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/7) Scheduled review on Woodpecker
 - blocked → ready: [#9](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/9) Install pmtrack without copying the file
