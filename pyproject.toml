@@ -8,6 +8,7 @@ dynamic = ["version"]
 description = "Project overview and progress review from plan docs and issues, on any forge"
 readme = "README.md"
 requires-python = ">=3.9"
+license = {text = "MIT"}
 dependencies = ["pyyaml"]
 
 [project.scripts]

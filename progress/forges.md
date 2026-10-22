@@ -1,6 +1,6 @@
 # ▶ Forges
 
-_Plan `forges` · [doc](../docs/forges.md) · data as of 2026-10-22 21:57 UTC · [all subsets](README.md)_
+_Plan `forges` · [doc](../docs/forges.md) · data as of 2026-10-22 22:31 UTC · [all subsets](README.md)_
 
 **25% done** · ✓ 1 done · ▶ 0 active · ○ 2 ready · ✕ 1 blocked
 
@@ -21,7 +21,7 @@ pie showData title Items by status
 
 ## Changes
 
-From 2026-10-22 20:30 to 2026-10-22 21:57 UTC:
+From 2026-10-22 20:30 to 2026-10-22 22:31 UTC:
 
 - ✓ done: [#3](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/3) Check that Forgejo draws the review charts
 

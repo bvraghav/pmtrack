@@ -13,12 +13,11 @@ rules, the `review` output and the `templates` generator. See the
 [README](../README.md) for the protocol itself.
 
 <!-- pm:progress -->
-**67% done** · ✓ 2 done · ▶ 0 active · ○ 1 ready · ✕ 0 blocked · [review](../progress/core.md)
+**100% done** · ✓ 3 done · ▶ 0 active · ○ 0 ready · ✕ 0 blocked · [review](../progress/core.md)
 
 ```mermaid
-%%{init: {"themeVariables": {"pie1": "#0ca30c", "pie2": "#eda100", "pieOpacity": "1", "pieSectionTextColor": "#000", "pieStrokeColor": "#fff", "pieStrokeWidth": "2px", "pieOuterStrokeWidth": "0px"}}}%%
+%%{init: {"themeVariables": {"pie1": "#0ca30c", "pieOpacity": "1", "pieSectionTextColor": "#000", "pieStrokeColor": "#fff", "pieStrokeWidth": "2px", "pieOuterStrokeWidth": "0px"}}}%%
 pie showData title Items by status
-  "✓ done" : 2
-  "○ ready" : 1
+  "✓ done" : 3
 ```
 <!-- /pm:progress -->

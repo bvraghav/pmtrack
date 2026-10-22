@@ -169,13 +169,13 @@ graph_limit: 80                # above this many nodes, warn and skip the graph
 Install a tagged version straight from the repo; pyyaml comes with it:
 
 ```sh
-pip install "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.0"
+pip install "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.1"
 # or run it without installing:
-uvx --from "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.0" pmtrack review
+uvx --from "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.1" pmtrack review
 ```
 
 pmtrack is a single file, so copying `pmtrack.py` (from
-`…/pm-bot/pmtrack/raw/tag/v0.1.0/pmtrack.py`) and installing pyyaml works
+`…/pm-bot/pmtrack/raw/tag/v0.1.1/pmtrack.py`) and installing pyyaml works
 too. It isn't on PyPI.
 
 ## Running
@@ -196,3 +196,8 @@ Forgejo is tested against a live server. Gitea uses the same API. The
 GitHub and GitLab readers follow their documented APIs but haven't been
 run against them yet, and neither has the rendering of issue frontmatter
 or `xychart-beta` there.
+
+## Licence
+
+MIT, see [LICENCE.md](LICENCE.md). Changes are listed in
+[CHANGELOG.md](CHANGELOG.md).
