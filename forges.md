@@ -1,6 +1,6 @@
 # ▶ Forges
 
-_Plan `forges` · [doc](../docs/forges.md) · data as of 2026-10-22 22:31 UTC · [all subsets](README.md)_
+_Plan `forges` · [doc](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/src/branch/develop/docs/forges.md) · data as of 2026-10-22 22:31 UTC · [all subsets](README.md)_
 
 **25% done** · ✓ 1 done · ▶ 0 active · ○ 2 ready · ✕ 1 blocked
 

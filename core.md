@@ -1,6 +1,6 @@
 # ✓ Core
 
-_Plan `core` · [doc](../docs/core.md) · data as of 2026-10-22 22:31 UTC · [all subsets](README.md)_
+_Plan `core` · [doc](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/src/branch/develop/docs/core.md) · data as of 2026-10-22 22:31 UTC · [all subsets](README.md)_
 
 **100% done** · ✓ 3 done · ▶ 0 active · ○ 0 ready · ✕ 0 blocked
 

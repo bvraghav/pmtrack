@@ -1,10 +1,10 @@
 # ▶ CI
 
-_Plan `ci` · [doc](../docs/ci.md) · data as of 2026-10-22 22:31 UTC · [all subsets](README.md)_
+_Plan `ci` · [doc](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/src/branch/develop/docs/ci.md) · data as of 2026-10-22 22:31 UTC · [all subsets](README.md)_
 
 **50% done** · ✓ 2 done · ▶ 0 active · ○ 1 ready · ✕ 1 blocked
 
-Depends on: ✓ [Core](../docs/core.md)
+Depends on: ✓ [Core](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/src/branch/develop/docs/core.md)
 
 ```mermaid
 %%{init: {"themeVariables": {"pie1": "#0ca30c", "pie2": "#eda100", "pie3": "#d03b3b", "pieOpacity": "1", "pieSectionTextColor": "#000", "pieStrokeColor": "#fff", "pieStrokeWidth": "2px", "pieOuterStrokeWidth": "0px"}}}%%

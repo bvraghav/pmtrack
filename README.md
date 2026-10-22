@@ -41,9 +41,9 @@ xychart-beta horizontal
 
 | Plan | % done | ✓ | ▶ | ○ | ✕ | Review |
 |---|--:|--:|--:|--:|--:|---|
-| ▶ [CI](../docs/ci.md) | 50 | 2 | 0 | 1 | 1 | [ci.md](ci.md) |
-| ✓ [Core](../docs/core.md) | 100 | 3 | 0 | 0 | 0 | [core.md](core.md) |
-| ▶ [Forges](../docs/forges.md) | 25 | 1 | 0 | 2 | 1 | [forges.md](forges.md) |
+| ▶ [CI](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/src/branch/develop/docs/ci.md) | 50 | 2 | 0 | 1 | 1 | [ci.md](ci.md) |
+| ✓ [Core](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/src/branch/develop/docs/core.md) | 100 | 3 | 0 | 0 | 0 | [core.md](core.md) |
+| ▶ [Forges](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/src/branch/develop/docs/forges.md) | 25 | 1 | 0 | 2 | 1 | [forges.md](forges.md) |
 
 ## Changes
 
