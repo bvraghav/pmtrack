@@ -1,8 +1,8 @@
 # ▶ CI
 
-_Plan `ci` · [doc](../docs/ci.md) · data as of 2026-10-22 22:10 UTC · [all subsets](README.md)_
+_Plan `ci` · [doc](../docs/ci.md) · data as of 2026-10-22 22:22 UTC · [all subsets](README.md)_
 
-**33% done** · ✓ 1 done · ▶ 0 active · ○ 1 ready · ✕ 1 blocked
+**25% done** · ✓ 1 done · ▶ 0 active · ○ 1 ready · ✕ 2 blocked
 
 Depends on: ✓ [Core](../docs/core.md)
 
@@ -11,32 +11,35 @@ Depends on: ✓ [Core](../docs/core.md)
 pie showData title Items by status
   "✓ done" : 1
   "○ ready" : 1
-  "✕ blocked" : 1
+  "✕ blocked" : 2
 ```
 
 | Item | Status | Ticked | Depends on |
 |---|---|--:|---|
 | [#7](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/7) Scheduled review on Woodpecker | ✓ done | 3/3 | ✓ #1 |
 | [#9](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/9) Install pmtrack without copying the file | ○ ready | 0/2 | ✓ #7 |
+| [#11](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/11) Publish the review from CI without commits on working branches | ✕ blocked | 0/3 | ○ #9 |
 | [#8](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/8) Pipelines for GitHub Actions and GitLab CI | ✕ blocked | 0/2 | ✓ #7, ○ #4, ○ #5 |
 
 ## Changes
 
-From 2026-10-22 20:30 to 2026-10-22 22:10 UTC:
+From 2026-10-22 20:30 to 2026-10-22 22:22 UTC:
 
 - ✓ done: [#7](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/7) Scheduled review on Woodpecker
 - blocked → ready: [#9](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/9) Install pmtrack without copying the file
+- new (blocked): [#11](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/11) Publish the review from CI without commits on working branches
 
 ## Needs attention
 
 ### ✕ Blocked
 
 - [#8](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/8) Pipelines for GitHub Actions and GitLab CI, waiting on ○ [#4](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/4) Run the GitHub reader against a live repo, ○ [#5](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/5) Run the GitLab reader against a live project
+- [#11](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/11) Publish the review from CI without commits on working branches, waiting on ○ [#9](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/9) Install pmtrack without copying the file
 
 
 ## Next up
 
-- ○ [#9](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/9) Install pmtrack without copying the file
+- ○ [#9](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/9) Install pmtrack without copying the file (unblocks 1)
 
 ## Dependency graph
 
@@ -45,16 +48,18 @@ _Legend: ✓ done · ▶ active (assigned or partly ticked) · ○ ready (nothin
 ```mermaid
 flowchart LR
   n0["✓ #1 Progress review and issue templ…"]:::done
-  n1["○ #4 Run the GitHub reader against a…"]:::ready
-  n2["○ #5 Run the GitLab reader against a…"]:::ready
-  n3["✓ #7 Scheduled review on Woodpecker"]:::done
-  n4["✕ #8 Pipelines for GitHub Actions an…"]:::blocked
-  n5["○ #9 Install pmtrack without copying…"]:::ready
-  n0 --> n3
-  n3 --> n4
-  n1 --> n4
-  n2 --> n4
+  n1["✕ #11 Publish the review from CI with…"]:::blocked
+  n2["○ #4 Run the GitHub reader against a…"]:::ready
+  n3["○ #5 Run the GitLab reader against a…"]:::ready
+  n4["✓ #7 Scheduled review on Woodpecker"]:::done
+  n5["✕ #8 Pipelines for GitHub Actions an…"]:::blocked
+  n6["○ #9 Install pmtrack without copying…"]:::ready
+  n6 --> n1
+  n0 --> n4
+  n4 --> n5
+  n2 --> n5
   n3 --> n5
+  n4 --> n6
   classDef done fill:#0ca30c,color:#000,stroke:#0ca30c
   classDef active fill:#2a78d6,color:#fff,stroke:#2a78d6
   classDef ready fill:#eda100,color:#000,stroke:#eda100
