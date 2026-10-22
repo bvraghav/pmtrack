@@ -403,23 +403,47 @@ def mq(s):
     return '"%s"' % str(s).replace('"', "'")
 
 
+def mermaid_init(theme=None, xy=None):
+    """A Mermaid init directive. Forges pick the theme (Forgejo: neutral or
+    dark); overriding only data colours keeps text readable in both."""
+    cfg = {}
+    if theme:
+        cfg["themeVariables"] = theme
+    if xy:
+        cfg["xyChart"] = xy
+    return "%%%%{init: %s}%%%%" % json.dumps(cfg, ensure_ascii=False)
+
+
+def xy_theme():
+    return {"xyChart": {"plotColorPalette": COLOR["done"][0]}}
+
+
 def bar_chart(rows, title="% done"):
-    """rows: [(name, pct)] -> horizontal mermaid xychart."""
+    """rows: [(name, pct)] -> horizontal mermaid xychart. The value goes in
+    the label: Mermaid sizes its own data labels to the smallest bar, so a
+    0% bar would hide them all."""
     if not rows:
         return []
-    return ["```mermaid", "xychart-beta horizontal", "  title %s" % mq(title),
-            "  x-axis [%s]" % ", ".join(mq(n) for n, _ in rows),
+    return ["```mermaid",
+            mermaid_init(xy_theme(), {"height": 90 + 45 * len(rows)}),
+            "xychart-beta horizontal", "  title %s" % mq(title),
+            "  x-axis [%s]" % ", ".join(mq("%s · %d%%" % (n, p)) for n, p in rows),
             '  y-axis "% done" 0 --> 100',
             "  bar [%s]" % ", ".join(str(p) for _, p in rows), "```"]
 
 
 def pie_chart(c, title):
-    """Status breakdown. Mermaid orders slices by size, so each slice is
-    named; colour alone does not identify a status."""
+    """Status breakdown, one fixed colour per status. Mermaid colours slices
+    in the order they're declared, so pie1..pieN follow the emitted slices.
+    Each slice is also named, so colour alone never identifies a status."""
     parts = [(s, c[s]) for s in STATUSES if c[s]]
     if not parts:
         return []
-    return ["```mermaid", "pie showData title %s" % title.replace('"', "'")] + [
+    theme = {"pie%d" % (i + 1): COLOR[s][0] for i, (s, _) in enumerate(parts)}
+    theme.update(pieOpacity="1", pieSectionTextColor="#000", pieStrokeColor="#fff",
+                 pieStrokeWidth="2px", pieOuterStrokeWidth="0px")
+    return ["```mermaid", mermaid_init(theme),
+            "pie showData title %s" % title.replace('"', "'")] + [
         "  %s : %d" % (mq("%s %s" % (ICON[s], s)), n) for s, n in parts] + ["```"]
 
 
@@ -546,16 +570,26 @@ def next_up(proj, nodes):
     return out
 
 
+TREND_DAYS = 30
+
+
 def trend(history, name):
-    pts = [(h["date"][5:10], h["subsets"][name]["pct"]) for h in history[-30:]
-           if name in h["subsets"]]
+    """% done per day (last snapshot of each day) over the last TREND_DAYS
+    days that have data. Bars, because a line over a few points is too thin
+    to read; a trend needs at least two days."""
+    days = {}
+    for h in history:
+        if name in h["subsets"]:
+            days[h["date"][:10]] = h["subsets"][name]["pct"]
+    pts = sorted(days.items())[-TREND_DAYS:]
     if len(pts) < 2:
-        return []
-    return ["```mermaid", "xychart-beta",
-            '  title "%s: %% done"' % name.replace('"', "'"),
-            "  x-axis [%s]" % ", ".join('"%s"' % d for d, _ in pts),
-            '  y-axis "%" 0 --> 100',
-            "  line [%s]" % ", ".join(str(p) for _, p in pts), "```"]
+        return ["_The trend starts once there are two days of history._"]
+    label = (lambda d, p: "%s · %d%%" % (d[5:], p)) if len(pts) <= 10 else (lambda d, p: d[5:])
+    return ["```mermaid", mermaid_init(xy_theme(), {"height": 320}), "xychart-beta",
+            '  title "%s: %% done by day"' % name.replace('"', "'"),
+            "  x-axis [%s]" % ", ".join(mq(label(d, p)) for d, p in pts),
+            '  y-axis "% done" 0 --> 100',
+            "  bar [%s]" % ", ".join(str(p) for _, p in pts), "```"]
 
 
 def render_overview(proj, date, now, base, history):
@@ -590,9 +624,7 @@ def render_overview(proj, date, now, base, history):
     L += ["", "## Dependency graph", "", LEGEND, ""]
     L += mermaid_graph(proj, [n.key for n in issues] + [p.key for p in plans],
                        proj.cfg["graph_limit"])
-    t = trend(history, "all")
-    if t:
-        L += ["", "## Trend", ""] + t
+    L += ["", "## Trend", ""] + trend(history, "all")
     return "\n".join(L) + "\n"
 
 
@@ -617,9 +649,7 @@ def render_plan(proj, plan, date, now, base, history):
     L += ["", "## Next up", ""] + next_up(proj, ms)
     L += ["", "## Dependency graph", "", LEGEND, ""]
     L += mermaid_graph(proj, [n.key for n in ms], proj.cfg["graph_limit"])
-    t = trend(history, "plan:" + plan.id)
-    if t:
-        L += ["", "## Trend", ""] + t
+    L += ["", "## Trend", ""] + trend(history, "plan:" + plan.id)
     return "\n".join(L) + "\n"
 
 

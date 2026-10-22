@@ -198,6 +198,31 @@ class TestReview(Base):
         self.assertIn("xychart-beta\n", readme)   # trend line
 
 
+class TestCharts(unittest.TestCase):
+    def test_pie_colour_follows_status_not_position(self):
+        c = {"done": 2, "active": 0, "ready": 5, "blocked": 1}
+        src = "\n".join(pmtrack.pie_chart(c, "t"))
+        init = json.loads(src.split("%%{init: ")[1].split("}%%")[0])["themeVariables"]
+        # active is empty and skipped, so ready is the 2nd slice and gets ready's colour
+        self.assertEqual([init["pie1"], init["pie2"], init["pie3"]],
+                         [pmtrack.COLOR[s][0] for s in ("done", "ready", "blocked")])
+        self.assertEqual(init["pieOpacity"], "1")
+        self.assertLess(src.index('"✓ done"'), src.index('"○ ready"'))
+
+    def test_bar_labels_carry_values(self):
+        src = "\n".join(pmtrack.bar_chart([("all", 22), ("x", 0)]))
+        self.assertIn('x-axis ["all · 22%", "x · 0%"]', src)
+        self.assertIn("plotColorPalette", src)
+
+    def test_trend_by_day(self):
+        h = lambda d, p: {"date": d, "subsets": {"all": {"pct": p}}}
+        one_day = [h("2026-10-22T10:00:00", 5), h("2026-10-22T20:00:00", 11)]
+        self.assertTrue(pmtrack.trend(one_day, "all")[0].startswith("_The trend starts"))
+        src = "\n".join(pmtrack.trend(one_day + [h("2026-10-23T09:00:00", 22)], "all"))
+        self.assertIn('x-axis ["10-22 · 11%", "10-23 · 22%"]', src)   # last snapshot per day
+        self.assertIn("bar [11, 22]", src)
+
+
 class TestTemplates(Base):
     SRC = """---
 template:
