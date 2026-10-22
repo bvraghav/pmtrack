@@ -1,0 +1,44 @@
+# pmtrack for Woodpecker CI: copy to .woodpecker/pm.yml in the project.
+#
+# Issue edits don't trigger CI, so also add a cron job for this repo in
+# Woodpecker (Repo settings -> Cron), e.g. hourly. Needs one secret:
+#   pm_token: a forge token with issue read + repository write on this repo
+#             (and issue read on any remotes in .pm.yml).
+#   Limit it to events push, cron and manual. Don't set an image filter:
+#   Woodpecker then allows the secret only in plugin steps, not commands.
+# Keep the commit command quoted: "progress: ..." would otherwise read as a
+# YAML map. The push filter uses the default branch Woodpecker has on
+# record; if it's stale, use Repair in the repo settings.
+# pmtrack is installed by tag: to update, change the tag below.
+variables:
+  - &pmtrack "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.0"
+
+when:
+  - event: [cron, manual]
+  - event: push
+    branch: ${CI_REPO_DEFAULT_BRANCH}
+
+steps:
+  - name: templates
+    image: python:3.13-alpine
+    environment:
+      PMTRACK: *pmtrack
+    commands:
+      - apk add -q git
+      - pip install -q --root-user-action=ignore "$${PMTRACK}"
+      - pmtrack templates --check
+
+  - name: review
+    image: python:3.13-alpine
+    environment:
+      PM_TOKEN:
+        from_secret: pm_token
+      PMTRACK: *pmtrack
+    commands:
+      - apk add -q git
+      - pip install -q --root-user-action=ignore "$${PMTRACK}"
+      - pmtrack review
+      - git add -A
+      - git diff --cached --quiet && exit 0
+      - 'git -c user.name=pmtrack -c user.email=pmtrack@noreply.invalid commit -qm "progress: update review [CI SKIP]"'
+      - git push "https://oauth2:$${PM_TOKEN}@$${CI_FORGE_URL#*://}/$${CI_REPO}.git" "HEAD:$${CI_COMMIT_BRANCH}"

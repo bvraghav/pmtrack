@@ -1,0 +1,5 @@
+# pmtrack tracks its own plans and issues.
+forge: forgejo
+url: https://forgejo.lab.bvraghav.com
+repo: pm-bot/pmtrack
+labels: ["area/*"]
