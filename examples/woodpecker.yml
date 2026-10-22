@@ -4,6 +4,11 @@
 # Woodpecker (Repo settings -> Cron), e.g. hourly. Needs one secret:
 #   pm_token: a forge token with issue read + repository write on this repo
 #             (and issue read on any remotes in .pm.yml).
+#   Limit it to events push, cron and manual. Don't set an image filter:
+#   Woodpecker then allows the secret only in plugin steps, not commands.
+# Keep the commit command quoted: "progress: ..." would otherwise read as a
+# YAML map. The push filter uses the default branch Woodpecker has on
+# record; if it's stale, use Repair in the repo settings.
 when:
   - event: [cron, manual]
   - event: push
