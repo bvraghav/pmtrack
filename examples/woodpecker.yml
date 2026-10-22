@@ -9,6 +9,10 @@
 # Keep the commit command quoted: "progress: ..." would otherwise read as a
 # YAML map. The push filter uses the default branch Woodpecker has on
 # record; if it's stale, use Repair in the repo settings.
+# pmtrack is installed by tag: to update, change the tag below.
+variables:
+  - &pmtrack "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.0"
+
 when:
   - event: [cron, manual]
   - event: push
@@ -17,19 +21,23 @@ when:
 steps:
   - name: templates
     image: python:3.13-alpine
+    environment:
+      PMTRACK: *pmtrack
     commands:
-      - pip install -q --root-user-action=ignore pyyaml
-      - python3 tools/pmtrack.py templates --check
+      - apk add -q git
+      - pip install -q --root-user-action=ignore "$${PMTRACK}"
+      - pmtrack templates --check
 
   - name: review
     image: python:3.13-alpine
     environment:
       PM_TOKEN:
         from_secret: pm_token
+      PMTRACK: *pmtrack
     commands:
       - apk add -q git
-      - pip install -q --root-user-action=ignore pyyaml
-      - python3 tools/pmtrack.py review
+      - pip install -q --root-user-action=ignore "$${PMTRACK}"
+      - pmtrack review
       - git add -A
       - git diff --cached --quiet && exit 0
       - 'git -c user.name=pmtrack -c user.email=pmtrack@noreply.invalid commit -qm "progress: update review [CI SKIP]"'

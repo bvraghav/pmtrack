@@ -164,13 +164,26 @@ window_days: 7                 # review window for changes and deltas
 graph_limit: 80                # above this many nodes, warn and skip the graph
 ```
 
+## Installing
+
+Install a tagged version straight from the repo; pyyaml comes with it:
+
+```sh
+pip install "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.0"
+# or run it without installing:
+uvx --from "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.0" pmtrack review
+```
+
+pmtrack is a single file, so copying `pmtrack.py` (from
+`…/pm-bot/pmtrack/raw/tag/v0.1.0/pmtrack.py`) and installing pyyaml works
+too. It isn't on PyPI.
+
 ## Running
 
 ```sh
-pip install pyyaml
-PM_TOKEN=… python3 pmtrack.py templates
-PM_TOKEN=… python3 pmtrack.py review [--dry-run] [--strict]
-python3 -m unittest discover -s tests
+PM_TOKEN=… pmtrack templates [--check]
+PM_TOKEN=… pmtrack review [--dry-run] [--strict]
+python3 -m unittest discover -s tests     # from a checkout
 ```
 
 For CI, `examples/woodpecker.yml` runs the review on push and on a
