@@ -4,6 +4,10 @@ _Plan `ci` · [doc](../docs/ci.md) · data as of 2026-10-22 21:57 UTC · [all su
 
 **33% done** · ✓ 1 done · ▶ 0 active · ○ 1 ready · ✕ 1 blocked
 
+Depends on: ▶ [Core](../docs/core.md)
+
+**✕ Blocked**, waiting on ▶ [Core](../docs/core.md)
+
 ```mermaid
 %%{init: {"themeVariables": {"pie1": "#0ca30c", "pie2": "#eda100", "pie3": "#d03b3b", "pieOpacity": "1", "pieSectionTextColor": "#000", "pieStrokeColor": "#fff", "pieStrokeWidth": "2px", "pieOuterStrokeWidth": "0px"}}}%%
 pie showData title Items by status
