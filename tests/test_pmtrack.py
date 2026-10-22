@@ -222,6 +222,13 @@ class TestCharts(unittest.TestCase):
         self.assertIn('x-axis ["10-22 · 11%", "10-23 · 22%"]', src)   # last snapshot per day
         self.assertIn("bar [11, 22]", src)
 
+    def test_long_trend_turns_dates_upright(self):
+        h = [{"date": "2026-10-%02dT10:00:00" % d, "subsets": {"all": {"pct": d}}} for d in range(1, 13)]
+        src = "\n".join(pmtrack.trend(h, "all"))
+        self.assertIn('"labelRotation": -90', src)
+        self.assertIn('"10-12"', src)
+        self.assertNotIn("·", src)
+
 
 class TestTemplates(Base):
     SRC = """---

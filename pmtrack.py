@@ -584,8 +584,12 @@ def trend(history, name):
     pts = sorted(days.items())[-TREND_DAYS:]
     if len(pts) < 2:
         return ["_The trend starts once there are two days of history._"]
-    label = (lambda d, p: "%s · %d%%" % (d[5:], p)) if len(pts) <= 10 else (lambda d, p: d[5:])
-    return ["```mermaid", mermaid_init(xy_theme(), {"height": 320}), "xychart-beta",
+    if len(pts) <= 10:
+        label, xy = (lambda d, p: "%s · %d%%" % (d[5:], p)), {"height": 320}
+    else:   # dates only, turned upright so they don't run into each other
+        label = lambda d, p: d[5:]
+        xy = {"height": 360, "xAxis": {"labelRotation": -90, "labelFontSize": 12}}
+    return ["```mermaid", mermaid_init(xy_theme(), xy), "xychart-beta",
             '  title "%s: %% done by day"' % name.replace('"', "'"),
             "  x-axis [%s]" % ", ".join(mq(label(d, p)) for d, p in pts),
             '  y-axis "% done" 0 --> 100',
