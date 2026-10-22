@@ -1,6 +1,6 @@
 # ○ Forges
 
-_Plan `forges` · [doc](../docs/forges.md) · data as of 2026-10-22 20:30 UTC · [all subsets](README.md)_
+_Plan `forges` · [doc](../docs/forges.md) · data as of 2026-10-22 20:31 UTC · [all subsets](README.md)_
 
 **0% done** · ✓ 0 done · ▶ 0 active · ○ 3 ready · ✕ 1 blocked
 
@@ -19,7 +19,9 @@ pie showData title Items by status
 
 ## Changes
 
-_No earlier snapshot yet; changes appear from the next update._
+From 2026-10-22 20:30 to 2026-10-22 20:31 UTC:
+
+- no changes
 
 ## Needs attention
 
@@ -52,4 +54,14 @@ flowchart LR
   classDef blocked fill:#d03b3b,color:#fff,stroke:#d03b3b
   classDef unknown fill:#898781,color:#000,stroke:#898781
   classDef dropped fill:#898781,color:#000,stroke:#898781
+```
+
+## Trend
+
+```mermaid
+xychart-beta
+  title "plan:forges: % done"
+  x-axis ["10-22", "10-22"]
+  y-axis "%" 0 --> 100
+  line [0, 0]
 ```

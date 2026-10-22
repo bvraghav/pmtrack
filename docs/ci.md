@@ -14,11 +14,12 @@ schedule and commits `progress/` back. This plan covers the pipelines
 and how a project gets pmtrack in the first place.
 
 <!-- pm:progress -->
-**0% done** · ✓ 0 done · ▶ 0 active · ○ 1 ready · ✕ 2 blocked · [review](../progress/ci.md)
+**33% done** · ✓ 1 done · ▶ 0 active · ○ 1 ready · ✕ 1 blocked · [review](../progress/ci.md)
 
 ```mermaid
 pie showData title Items by status
+  "✓ done" : 1
   "○ ready" : 1
-  "✕ blocked" : 2
+  "✕ blocked" : 1
 ```
 <!-- /pm:progress -->
