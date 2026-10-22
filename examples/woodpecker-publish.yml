@@ -1,0 +1,59 @@
+# pmtrack for Woodpecker CI, with the review on its own branch: copy to
+# .woodpecker/pm.yml in the project.
+#
+# CI writes the review and its history to branch pm-progress (started on
+# the first run) and never commits to working branches, so there is
+# nothing to pull. The forge shows the review when you open that branch.
+# Plan docs' <!-- pm:progress --> blocks are not filled in this mode; link
+# to the plan's page on the review branch instead.
+#
+# Issue edits don't trigger CI, so also add a cron job for this repo in
+# Woodpecker (Repo settings -> Cron), e.g. hourly. Needs one secret:
+#   pm_token: a forge token with issue read + repository write on this repo
+#             (and issue read on any remotes in .pm.yml).
+#   Limit it to events push, cron and manual. Don't set an image filter:
+#   Woodpecker then allows the secret only in plugin steps, not commands.
+# Keep the commit command quoted: "progress: ..." would otherwise read as a
+# YAML map. The push filter uses the default branch Woodpecker has on
+# record; if it's stale, use Repair in the repo settings.
+# pmtrack is installed by tag: to update, change the tag below.
+variables:
+  - &pmtrack "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.1"
+
+when:
+  - event: [cron, manual]
+  - event: push
+    branch: ${CI_REPO_DEFAULT_BRANCH}
+
+steps:
+  - name: templates
+    image: python:3.13-alpine
+    environment:
+      PMTRACK: *pmtrack
+    commands:
+      - apk add -q git
+      - pip install -q --root-user-action=ignore "$${PMTRACK}"
+      - pmtrack templates --check
+
+  - name: review
+    image: python:3.13-alpine
+    environment:
+      PM_TOKEN:
+        from_secret: pm_token
+      PMTRACK: *pmtrack
+      PM_BRANCH: pm-progress
+    commands:
+      - apk add -q git
+      - pip install -q --root-user-action=ignore "$${PMTRACK}"
+      - REMOTE="https://oauth2:$${PM_TOKEN}@$${CI_FORGE_URL#*://}/$${CI_REPO}.git"
+      # Check out the review branch, or start it. ls-remote fails on a bad
+      # token, so a missing branch is the only way to get an empty list.
+      - git init -q /tmp/pub
+      - git ls-remote --heads "$${REMOTE}" "$${PM_BRANCH}" > /tmp/heads
+      - 'if [ -s /tmp/heads ]; then git -C /tmp/pub fetch -q --depth 1 "$${REMOTE}" "$${PM_BRANCH}" && git -C /tmp/pub checkout -q -b "$${PM_BRANCH}" FETCH_HEAD; else git -C /tmp/pub checkout -q --orphan "$${PM_BRANCH}"; fi'
+      - pmtrack review --publish /tmp/pub --ref "$${CI_COMMIT_BRANCH}"
+      - cd /tmp/pub
+      - git add -A
+      - git diff --cached --quiet && exit 0
+      - 'git -c user.name=pmtrack -c user.email=pmtrack@noreply.invalid commit -qm "progress: update review [CI SKIP]"'
+      - git push -q "$${REMOTE}" "HEAD:$${PM_BRANCH}"

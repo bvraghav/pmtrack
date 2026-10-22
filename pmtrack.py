@@ -109,6 +109,11 @@ class Forge:
     def web(self):
         return "%s/%s" % (self.url, self.repo)
 
+    def file_url(self, path, ref):
+        """Web page of a repo file on branch ref."""
+        part = {"github": "blob", "gitlab": "-/blob"}.get(self.kind, "src/branch")
+        return "%s/%s/%s/%s" % (self.web, part, ref, path)
+
     def _get(self, path, params):
         q = urllib.parse.urlencode(params)
         if self.kind in ("forgejo", "gitea"):
@@ -180,6 +185,7 @@ class Node:
     plans: list = field(default_factory=list)   # plan ids this issue names
     scope: list = field(default_factory=list)   # plan: labels its issues carry
     path: str = ""                              # plan: doc path
+    doc_url: str = ""                           # plan: doc web link (--publish)
     status: str = ""
     progress: float = 0.0
 
@@ -482,9 +488,14 @@ def esc(s):
     return str(s).replace("|", "\\|").replace("<", "&lt;").replace("\n", " ")
 
 
+def doc_href(n, rel_to=""):
+    """Link to a plan's doc: on the forge when publishing, else relative."""
+    return n.doc_url or os.path.relpath(n.path, rel_to or ".")
+
+
 def link(n, rel_to=""):
     if n.kind == "plan":
-        return "[%s](%s)" % (esc(n.title), os.path.relpath(n.path, rel_to or "."))
+        return "[%s](%s)" % (esc(n.title), doc_href(n, rel_to))
     return "[%s](%s) %s" % (n.label, n.url, esc(n.title))
 
 
@@ -718,7 +729,7 @@ def render_plan(proj, plan, date, now, base, history):
     c = tally(ms)
     L = ["# %s %s" % (ICON.get(plan.status, "?"), esc(plan.title)), "",
          "_Plan `%s` · [doc](%s) · data as of %s UTC · [all subsets](README.md)_" % (
-             plan.id, os.path.relpath(plan.path, out), date[:16].replace("T", " ")), "",
+             plan.id, doc_href(plan, out), date[:16].replace("T", " ")), "",
          "**%d%% done** · %s" % (c["pct"], summary(c)), ""]
     L += plan_blockers(proj, plan, out) + pie_chart(c, "Items by status") + ["",
          "| Item | Status | Ticked | Depends on |", "|---|---|--:|---|"]
@@ -764,6 +775,13 @@ def snapshot(proj):
     return snap
 
 
+def shown(path, root):
+    try:
+        return path.relative_to(root)
+    except ValueError:
+        return path
+
+
 def cmd_review(root, cfg, args, forge_factory=Forge):
     now = (dt.datetime.fromisoformat(args.now) if args.now
            else dt.datetime.now(dt.timezone.utc)).replace(microsecond=0)
@@ -773,6 +791,11 @@ def cmd_review(root, cfg, args, forge_factory=Forge):
     proj.load_local()
     proj.compute()
     out = root / cfg["out"]
+    if args.publish:   # review lives on its own branch; docs stay as they are
+        out = Path(args.publish).resolve()
+        here = proj.forge_for("")
+        for p in proj.plans():
+            p.doc_url = here.file_url(p.path, args.ref)
     hist_path = out / "history.jsonl"
     history = load_history(hist_path)
     snap = snapshot(proj)
@@ -786,9 +809,9 @@ def cmd_review(root, cfg, args, forge_factory=Forge):
     files = {out / "README.md": render_overview(proj, date, data_now, base, history)}
     for p in proj.plans():
         files[out / (p.id + ".md")] = render_plan(proj, p, date, data_now, base, history)
-        doc = root / p.path
-        text = doc.read_text(encoding="utf-8")
-        files[doc] = fill_doc(proj, p, text)
+        if not args.publish:
+            doc = root / p.path
+            files[doc] = fill_doc(proj, p, doc.read_text(encoding="utf-8"))
     files[hist_path] = "".join(json.dumps(h, sort_keys=True) + "\n" for h in history)
     changed = 0
     for path, text in files.items():
@@ -796,11 +819,11 @@ def cmd_review(root, cfg, args, forge_factory=Forge):
             continue
         changed += 1
         if args.dry_run:
-            print("would write %s" % path.relative_to(root))
+            print("would write %s" % shown(path, root))
             continue
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text, encoding="utf-8")
-        print("wrote %s" % path.relative_to(root))
+        print("wrote %s" % shown(path, root))
     c = tally(proj.local_issues())
     print("%d%% done · %s · %d metadata problem(s) · %d file(s) changed" % (
         c["pct"], summary(c), len(set(proj.problems)), changed))
@@ -884,7 +907,13 @@ def main(argv=None, forge_factory=Forge):
     r.add_argument("--dry-run", action="store_true", help="show what would change")
     r.add_argument("--strict", action="store_true", help="exit 1 on metadata problems")
     r.add_argument("--now", help="ISO timestamp to use as now (tests)")
+    r.add_argument("--publish", metavar="DIR",
+                   help="write the review and history to DIR (a checkout of a review "
+                        "branch) and leave plan docs alone")
+    r.add_argument("--ref", help="with --publish: branch the plan docs are linked on")
     args = ap.parse_args(argv)
+    if args.cmd == "review" and bool(args.publish) != bool(args.ref):
+        ap.error("--publish and --ref go together")
     root = Path(args.root).resolve()
     cfg = load_config(root, args.config)
     if args.cmd == "templates":

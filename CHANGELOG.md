@@ -6,6 +6,19 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `review --publish DIR --ref BRANCH`: writes the review and its history
+  to DIR, a checkout of a review branch, and leaves plan docs alone;
+  plan docs are linked on BRANCH through the forge's web pages.
+- `examples/woodpecker-publish.yml`: CI keeps the review on branch
+  `pm-progress` and never commits to working branches.
+
+### Changed
+
+- pmtrack's own review is published to `pm-progress`; `progress/` is
+  gone from develop and plan docs link to their review page.
+
 ## [0.1.1] - 2026-10-23
 
 ### Added
