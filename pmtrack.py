@@ -569,16 +569,35 @@ def changes_section(proj, nodes, base, date):
     return [head, ""] + (lines or ["- no changes"])
 
 
+def waiting_on(proj, n, rel_to=""):
+    """What n depends on that isn't done: open nodes, then unresolved refs."""
+    waits = ["%s %s" % (ICON.get(proj.nodes[k].status, "?"), link(proj.nodes[k], rel_to))
+             for k in proj.edges.get(n.key, [])
+             if proj.nodes[k].status not in ("done", "dropped")]
+    return waits + ["? `%s` (unresolved)" % r for r in proj.unresolved.get(n.key, [])]
+
+
+def plan_blockers(proj, plan, rel_to=""):
+    """Lines for a plan page: what the plan depends on, and why it's blocked."""
+    deps = ["%s %s" % (ICON.get(proj.nodes[k].status, "?"), link(proj.nodes[k], rel_to))
+            for k in proj.edges.get(plan.key, [])]
+    deps += ["? `%s` (unresolved)" % r for r in proj.unresolved.get(plan.key, [])]
+    lines = ["Depends on: %s" % ", ".join(deps), ""] if deps else []
+    if plan.status == "blocked":
+        waits = waiting_on(proj, plan, rel_to)
+        lines += ["**%s Blocked**, waiting on %s" % (ICON["blocked"], ", ".join(waits))
+                  if waits else
+                  "**%s Blocked**: every open item is blocked (see Needs attention)" % ICON["blocked"], ""]
+    return lines
+
+
 def attention_section(proj, nodes, now, rel_to=""):
     lines = []
     blocked = [n for n in nodes if n.status == "blocked"]
     if blocked:
         lines += ["### %s Blocked" % ICON["blocked"], ""]
         for n in blocked:
-            waits = ["%s %s" % (ICON.get(proj.nodes[k].status, "?"), link(proj.nodes[k], rel_to))
-                     for k in proj.edges.get(n.key, [])
-                     if proj.nodes[k].status not in ("done", "dropped")]
-            waits += ["? `%s` (unresolved)" % r for r in proj.unresolved.get(n.key, [])]
+            waits = waiting_on(proj, n, rel_to)
             lines.append("- %s, waiting on %s" % (link(n, rel_to), ", ".join(waits) or "a cycle"))
         lines.append("")
     stale_cut = (now - dt.timedelta(days=proj.cfg["stale_days"])).isoformat()
@@ -700,7 +719,8 @@ def render_plan(proj, plan, date, now, base, history):
     L = ["# %s %s" % (ICON.get(plan.status, "?"), esc(plan.title)), "",
          "_Plan `%s` · [doc](%s) · data as of %s UTC · [all subsets](README.md)_" % (
              plan.id, os.path.relpath(plan.path, out), date[:16].replace("T", " ")), "",
-         "**%d%% done** · %s" % (c["pct"], summary(c)), ""] + pie_chart(c, "Items by status") + ["",
+         "**%d%% done** · %s" % (c["pct"], summary(c)), ""]
+    L += plan_blockers(proj, plan, out) + pie_chart(c, "Items by status") + ["",
          "| Item | Status | Ticked | Depends on |", "|---|---|--:|---|"]
     for n in sorted(ms, key=lambda n: (STATUSES.index(n.status) if n.status in STATUSES else 9, n.key)):
         deps = ", ".join("%s %s" % (ICON.get(proj.nodes[k].status, "?"), proj.nodes[k].label)

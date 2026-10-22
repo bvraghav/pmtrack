@@ -153,6 +153,24 @@ class TestStatus(Base):
         keys = sorted(n.key for n in p.members(p.nodes["plan:auth"]))
         self.assertEqual(keys, ["#2", "#3", "#4", "#9"])   # labels or explicit plan
 
+
+    def test_plan_page_names_what_it_waits_on(self):
+        (self.root / "docs/release.md").write_text(
+            "---\ntitle: Release\npm:\n  id: release\n  depends: [auth, db, gone]\n"
+            "  scope: {labels: [area/docs]}\n---\n")
+        (self.root / "docs/ui.md").write_text(   # #2, #3, #4: all blocked
+            "---\ntitle: UI\npm:\n  id: ui\n  scope: {labels: [area/auth]}\n---\n")
+        p = self.project()
+        rel = pmtrack.plan_blockers(p, p.nodes["plan:release"], "progress")
+        self.assertEqual(p.nodes["plan:release"].status, "blocked")
+        self.assertIn("Depends on: ", rel[0])
+        self.assertIn("[#1](", rel[0])                     # done deps listed too
+        waits = rel[2]
+        self.assertIn("waiting on ○ [Authentication](../docs/auth.md)", waits)
+        self.assertIn("? `gone` (unresolved)", waits)
+        self.assertNotIn("#1", waits)                      # done: not waited on
+        self.assertEqual(pmtrack.plan_blockers(p, p.nodes["plan:auth"]), [])
+        self.assertIn("every open item is blocked", pmtrack.plan_blockers(p, p.nodes["plan:ui"])[0])
     def test_url_ref(self):
         p = self.project()
         self.assertEqual(p.resolve("https://g.example/o/lib/-/issues/4"), "lib#4")

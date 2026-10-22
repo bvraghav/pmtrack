@@ -110,7 +110,9 @@ share of its `- [ ]` boxes that are ticked.
   a white card with dark text in both light and dark mode: Mermaid draws
   every bar from below 0, so a background-coloured bar at 0 is drawn over
   it, and that needs a known background. Values sit in the bar labels.
-- `<plan-id>.md`: the same for one plan, item by item.
+- `<plan-id>.md`: the same for one plan, item by item. If the plan
+  depends on other plans or items, it lists them; if it's blocked, it
+  says by what (open dependencies, or that every open item is blocked).
 - `history.jsonl`: one line per change of state, which drives the
   change lists, the deltas and the trend.
 
