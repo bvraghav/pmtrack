@@ -27,5 +27,5 @@ steps:
       - python3 tools/pmtrack.py review
       - git add -A
       - git diff --cached --quiet && exit 0
-      - git -c user.name=pmtrack -c user.email=pmtrack@noreply.invalid commit -qm "progress: update review [CI SKIP]"
+      - 'git -c user.name=pmtrack -c user.email=pmtrack@noreply.invalid commit -qm "progress: update review [CI SKIP]"'
       - git push "https://oauth2:$${PM_TOKEN}@$${CI_FORGE_URL#*://}/$${CI_REPO}.git" "HEAD:$${CI_COMMIT_BRANCH}"
