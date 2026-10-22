@@ -6,6 +6,8 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-10-23
+
 ### Added
 
 - `review --publish DIR --ref BRANCH`: writes the review and its history
@@ -18,6 +20,7 @@ follow [Semantic Versioning](https://semver.org/).
 
 - pmtrack's own review is published to `pm-progress`; `progress/` is
   gone from develop and plan docs link to their review page.
+- Example pipelines and README install `v0.1.2`.
 
 ## [0.1.1] - 2026-10-23
 
@@ -61,6 +64,7 @@ First release.
   committing `progress/` back.
 - Install from a git tag with pip or uv; `pmtrack` command.
 
-[Unreleased]: https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/compare/v0.1.1...develop
+[Unreleased]: https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/compare/v0.1.2...develop
+[0.1.2]: https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/compare/v0.1.1...v0.1.2
 [0.1.1]: https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/src/tag/v0.1.1
 [0.1.0]: https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/src/tag/v0.1.0
