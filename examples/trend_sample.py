@@ -34,22 +34,29 @@ SCOPE = [20, 20, 22, 22, 22, 24, 24, 24, 26, 26, 26, 26, 28, 28, 30, 30, 30, 30,
 
 
 def burn_up(start):
-    """Option for discussion, not in the review yet: items done and scope as
-    lines, items finished per day as bars, all in items."""
+    """Option for discussion, not in the review yet. Mermaid has one y-axis
+    per chart, so two charts stacked on the same days and size: items on
+    top (scope and done as lines, items finished per day as bars), % done
+    below."""
     done = [round(p * s / 100) for p, s in zip(LONG, SCOPE)]
     per_day = [0] + [b - a for a, b in zip(done, done[1:])]
-    theme = {"xyChart": {"plotColorPalette": "%s,%s,%s" % (
-        pmtrack.COLOR["done"][0], pmtrack.COLOR["unknown"][0], pmtrack.COLOR["active"][0])}}
+    x = "  x-axis [%s]" % ", ".join(json.dumps(d[5:]) for d in dates(len(LONG), start))
     xy = {"height": 380, "xAxis": {"labelRotation": -90, "labelFontSize": 12}}
-    return ["```mermaid", pmtrack.mermaid_init(theme, xy), "xychart-beta",
-            '  title "all: items done and scope"',
-            "  x-axis [%s]" % ", ".join(json.dumps(d[5:]) for d in dates(len(LONG), start)),
+    c = pmtrack.COLOR
+    items = {"xyChart": {"plotColorPalette": "%s,%s,%s" % (
+        c["done"][0], c["unknown"][0], c["active"][0])}}
+    pct = {"xyChart": {"plotColorPalette": c["active"][0]}}
+    return ["```mermaid", pmtrack.mermaid_init(items, xy), "xychart-beta",
+            '  title "all: items done and scope"', x,
             '  y-axis "items" 0 --> %d' % (max(SCOPE) + 4),
             "  bar %s" % json.dumps(per_day), "  line %s" % json.dumps(SCOPE),
             "  line %s" % json.dumps(done), "```", "",
-            "_Grey line: scope (items in the subset). Blue line: items done "
-            "(weighted, with partial credit). Bars: items finished that day._"]
-
+            "```mermaid", pmtrack.mermaid_init(pct, xy), "xychart-beta",
+            '  title "all: % done"', x, '  y-axis "% done" 0 --> 100',
+            "  line %s" % json.dumps(LONG), "```", "",
+            "_Top, in items: grey line is scope, blue line is items done "
+            "(weighted, with partial credit), green bars are items finished that day. "
+            "Bottom: % done, which is blue over grey from the top chart._"]
 
 L = ["---", "title: Trend sample", "subtitle: The review's trend chart, drawn from dummy history",
      "---", "", "# Trend sample", "",
@@ -65,10 +72,12 @@ L += ["", "## Thirty days", "", "Past ten days, labels are dates only; read valu
 L += pmtrack.trend(history(LONG, "2026-09-23"), "all")
 L += ["", "## One day", "", "With a single day of history the review shows this note instead:", ""]
 L += pmtrack.trend(history([12], "2026-10-23"), "all")
-L += ["", "## Option: burn-up", "",
+L += ["", "## Option: burn-up with % done", "",
       "Not in the review yet. % done mixes two things: work finishing and scope",
-      "growing. Here the same thirty days are counted in items, so a dip in % done",
-      "shows up as the grey scope line stepping up, not as lost work.", ""]
+      "growing. The top chart counts the same thirty days in items, so a dip in",
+      "% done shows up as the grey scope line stepping up, not as lost work.",
+      "Mermaid allows one y-axis per chart, so % done sits in its own chart",
+      "below, on the same days.", ""]
 L += burn_up("2026-09-23")
 (ROOT / "examples/trend-sample.md").write_text("\n".join(L) + "\n")
 print("wrote examples/trend-sample.md")

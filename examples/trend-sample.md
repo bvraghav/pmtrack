@@ -49,11 +49,13 @@ With a single day of history the review shows this note instead:
 
 _The trend starts once there are two days of history._
 
-## Option: burn-up
+## Option: burn-up with % done
 
 Not in the review yet. % done mixes two things: work finishing and scope
-growing. Here the same thirty days are counted in items, so a dip in % done
-shows up as the grey scope line stepping up, not as lost work.
+growing. The top chart counts the same thirty days in items, so a dip in
+% done shows up as the grey scope line stepping up, not as lost work.
+Mermaid allows one y-axis per chart, so % done sits in its own chart
+below, on the same days.
 
 ```mermaid
 %%{init: {"themeVariables": {"xyChart": {"plotColorPalette": "#0ca30c,#898781,#2a78d6"}}, "xyChart": {"height": 380, "xAxis": {"labelRotation": -90, "labelFontSize": 12}}}}%%
@@ -66,4 +68,13 @@ xychart-beta
   line [0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 5, 5, 7, 7, 7, 8, 9, 10, 11, 11, 13, 14, 15, 16, 18, 20, 21, 21, 22, 24]
 ```
 
-_Grey line: scope (items in the subset). Blue line: items done (weighted, with partial credit). Bars: items finished that day._
+```mermaid
+%%{init: {"themeVariables": {"xyChart": {"plotColorPalette": "#2a78d6"}}, "xyChart": {"height": 380, "xAxis": {"labelRotation": -90, "labelFontSize": 12}}}}%%
+xychart-beta
+  title "all: % done"
+  x-axis ["09-23", "09-24", "09-25", "09-26", "09-27", "09-28", "09-29", "09-30", "10-01", "10-02", "10-03", "10-04", "10-05", "10-06", "10-07", "10-08", "10-09", "10-10", "10-11", "10-12", "10-13", "10-14", "10-15", "10-16", "10-17", "10-18", "10-19", "10-20", "10-21", "10-22"]
+  y-axis "% done" 0 --> 100
+  line [0, 2, 2, 5, 8, 8, 8, 11, 14, 18, 18, 21, 25, 25, 24, 27, 31, 35, 35, 35, 40, 44, 47, 47, 52, 58, 61, 61, 66, 71]
+```
+
+_Top, in items: grey line is scope, blue line is items done (weighted, with partial credit), green bars are items finished that day. Bottom: % done, which is blue over grey from the top chart._
