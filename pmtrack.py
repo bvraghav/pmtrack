@@ -143,7 +143,7 @@ class Forge:
                                   {"state": "all", "per_page": 100, "page": page})
             if not batch:
                 return out
-            out += [self.normalise(i) for i in batch if "pull_request" not in i]
+            out += [self.normalise(i) for i in batch if not i.get("pull_request")]
             page += 1
 
     def normalise(self, i):
@@ -288,7 +288,8 @@ class Project:
                 if plan.id in n.plans or (plan.scope and set(plan.scope) <= set(n.labels))]
 
     def local_issues(self):
-        return [n for n in self.nodes.values() if n.kind == "issue" and n.repo == ""]
+        return sorted((n for n in self.nodes.values() if n.kind == "issue" and n.repo == ""),
+                      key=lambda n: int(n.key[1:]))
 
     def compute(self):
         visiting = set()
@@ -444,7 +445,7 @@ def delta(now_pct, base, name):
 
 
 def mermaid_graph(proj, keys, limit):
-    keys = list(keys)
+    keys = [k for k in keys if proj.nodes[k].status != "dropped"]
     if len(keys) > limit:   # keep it readable: open work and what it waits on
         keys = [k for k in keys if proj.nodes[k].status not in ("done", "dropped")]
         keys = keys[:limit]
@@ -461,6 +462,11 @@ def mermaid_graph(proj, keys, limit):
         shape = '[["%s"]]' if n.kind == "plan" else '["%s"]'
         lines.append("  %s%s:::%s" % (ids[k], shape % text, n.status or "unknown"))
     for k in sorted(shown):
+        n = proj.nodes[k]
+        if n.kind == "plan":   # dotted: plan to the items it tracks
+            for m in proj.members(n):
+                if m.key in shown:
+                    lines.append("  %s -.- %s" % (ids[k], ids[m.key]))
         for d in proj.edges.get(k, []):
             if d in shown and k in shown:
                 lines.append("  %s --> %s" % (ids[d], ids[k]))
@@ -475,7 +481,7 @@ def mermaid_graph(proj, keys, limit):
 
 LEGEND = ("_Legend: %s done · %s active (assigned or partly ticked) · %s ready "
           "(nothing it waits on is open) · %s blocked · arrows point from a "
-          "dependency to what waits on it._" % (ICON["done"], ICON["active"],
+          "dependency to what waits on it; dotted lines join a plan to its items._" % (ICON["done"], ICON["active"],
                                                  ICON["ready"], ICON["blocked"]))
 
 
@@ -496,8 +502,8 @@ def changes_section(proj, nodes, base, date):
         lines.append("- %s → %s: %s" % (was, n.status, link(n)))
     for n in new:
         lines.append("- new (%s): %s" % (n.status, link(n)))
-    head = "Since %s (%s to %s):" % (base["date"][:10], base["date"][:16].replace("T", " "),
-                                     date[:16].replace("T", " "))
+    head = "From %s to %s UTC:" % (base["date"][:16].replace("T", " "),
+                                   date[:16].replace("T", " "))
     return [head, ""] + (lines or ["- no changes"])
 
 

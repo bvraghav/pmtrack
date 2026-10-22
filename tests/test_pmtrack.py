@@ -106,6 +106,25 @@ class TestParse(unittest.TestCase):
         self.assertEqual(pmtrack.checkboxes("- [x] a\n* [X] b\n- [ ] c\n"), (2, 3))
 
 
+class TestForge(unittest.TestCase):
+    def test_pull_requests_skipped_but_null_key_kept(self):
+        raw = [{"number": 1, "title": "i", "body": None, "state": "open", "labels": [],
+                "assignees": None, "html_url": "u", "pull_request": None},
+               {"number": 2, "title": "pr", "state": "open", "html_url": "u",
+                "pull_request": {"merged": False}}]
+        f = pmtrack.Forge("forgejo", "https://f", "o/r")
+        pages = iter([raw, []])
+        f._get = lambda path, params: next(pages)
+        self.assertEqual([i["number"] for i in f.issues()], [1])
+
+    def test_gitlab_normalise(self):
+        f = pmtrack.Forge("gitlab", "https://g", "grp/r")
+        n = f.normalise({"iid": 3, "title": "t", "description": None, "state": "opened",
+                         "labels": ["a"], "assignees": [{"username": "u"}],
+                         "web_url": "w", "updated_at": "x"})
+        self.assertEqual((n["number"], n["state"], n["body"], n["assignees"]), (3, "open", "", ["u"]))
+
+
 class TestStatus(Base):
     def test_statuses(self):
         p = self.project()
