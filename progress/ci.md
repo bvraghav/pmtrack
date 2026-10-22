@@ -1,10 +1,11 @@
 # ✕ CI
 
-_Plan `ci` · [doc](../docs/ci.md) · data as of 2026-10-22 20:31 UTC · [all subsets](README.md)_
+_Plan `ci` · [doc](../docs/ci.md) · data as of 2026-10-22 20:50 UTC · [all subsets](README.md)_
 
 **33% done** · ✓ 1 done · ▶ 0 active · ○ 1 ready · ✕ 1 blocked
 
 ```mermaid
+%%{init: {"themeVariables": {"pie1": "#0ca30c", "pie2": "#eda100", "pie3": "#d03b3b", "pieOpacity": "1", "pieSectionTextColor": "#000", "pieStrokeColor": "#fff", "pieStrokeWidth": "2px", "pieOuterStrokeWidth": "0px"}}}%%
 pie showData title Items by status
   "✓ done" : 1
   "○ ready" : 1
@@ -19,7 +20,7 @@ pie showData title Items by status
 
 ## Changes
 
-From 2026-10-22 20:30 to 2026-10-22 20:31 UTC:
+From 2026-10-22 20:30 to 2026-10-22 20:50 UTC:
 
 - ✓ done: [#7](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/7) Scheduled review on Woodpecker
 - blocked → ready: [#9](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/9) Install pmtrack without copying the file
@@ -62,10 +63,4 @@ flowchart LR
 
 ## Trend
 
-```mermaid
-xychart-beta
-  title "plan:ci: % done"
-  x-axis ["10-22", "10-22"]
-  y-axis "%" 0 --> 100
-  line [0, 33]
-```
+_The trend starts once there are two days of history._

@@ -17,6 +17,7 @@ and how a project gets pmtrack in the first place.
 **33% done** · ✓ 1 done · ▶ 0 active · ○ 1 ready · ✕ 1 blocked · [review](../progress/ci.md)
 
 ```mermaid
+%%{init: {"themeVariables": {"pie1": "#0ca30c", "pie2": "#eda100", "pie3": "#d03b3b", "pieOpacity": "1", "pieSectionTextColor": "#000", "pieStrokeColor": "#fff", "pieStrokeWidth": "2px", "pieOuterStrokeWidth": "0px"}}}%%
 pie showData title Items by status
   "✓ done" : 1
   "○ ready" : 1
