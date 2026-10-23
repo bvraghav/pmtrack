@@ -179,17 +179,17 @@ graph_limit: 80                # above this many nodes, warn and skip the graph
 Install a tagged version straight from the repo; pyyaml comes with it:
 
 ```sh
-pip install "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.2"
+pip install "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.3"
 # or run it without installing:
-uvx --from "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.2" pmtrack review
+uvx --from "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.3" pmtrack review
 ```
 
 The same tags are on a read-only mirror,
-`git+https://github.com/bvraghav/pmtrack@v0.1.2`, for machines (such as
+`git+https://github.com/bvraghav/pmtrack@v0.1.3`, for machines (such as
 GitHub's and GitLab's CI runners) that can't reach the Forgejo server.
 
 pmtrack is a single file, so copying `pmtrack.py` (from
-`…/pm-bot/pmtrack/raw/tag/v0.1.2/pmtrack.py`) and installing pyyaml works
+`…/pm-bot/pmtrack/raw/tag/v0.1.3/pmtrack.py`) and installing pyyaml works
 too. It isn't on PyPI.
 
 ## Running

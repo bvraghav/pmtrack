@@ -24,7 +24,7 @@ from pathlib import Path
 
 import yaml
 
-VERSION = "0.1.2"
+VERSION = "0.1.3"
 NS = "pm"
 STATUSES = ("done", "active", "ready", "blocked")
 ICON = {"done": "✓", "active": "▶", "ready": "○", "blocked": "✕",
