@@ -1,0 +1,31 @@
+# pmtrack for GitLab CI: copy to .gitlab-ci.yml in the project (or add the
+# job to an existing one).
+#
+# Runs on push to the default branch, on a schedule and by hand, and
+# commits progress/ and the plan docs' progress blocks back to the branch.
+#
+# Issue edits don't start pipelines, so add a schedule (Build -> Pipeline
+# schedules), e.g. hourly. Needs one CI/CD variable:
+#   PM_TOKEN: a project access token, role Maintainer (or Developer if it
+#             may push to the branch), scopes read_api + write_repository
+#             (plus read access to any remotes in .pm.yml). Mark it masked.
+#             The job's own CI_JOB_TOKEN can't read issues or push.
+# "[skip ci]" in the commit stops the push from starting another pipeline.
+# pmtrack is installed by tag: to update, change the tag below.
+variables:
+  PMTRACK: "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.2"
+
+pmtrack:
+  image: python:3.13-alpine
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - apk add -q git
+    - pip install -q --root-user-action=ignore "$PMTRACK"
+    - pmtrack templates --check
+    - pmtrack review
+    - git add -A
+    - git diff --cached --quiet && exit 0
+    - 'git -c user.name=pmtrack -c user.email=pmtrack@noreply.invalid commit -qm "progress: update review [skip ci]"'
+    - git push -q "https://oauth2:${PM_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git" "HEAD:${CI_COMMIT_BRANCH}"

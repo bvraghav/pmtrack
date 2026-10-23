@@ -113,9 +113,27 @@ class TestForge(unittest.TestCase):
                {"number": 2, "title": "pr", "state": "open", "html_url": "u",
                 "pull_request": {"merged": False}}]
         f = pmtrack.Forge("forgejo", "https://f", "o/r")
+        f.page_size = 2
         pages = iter([raw, []])
         f._get = lambda path, params: next(pages)
         self.assertEqual([i["number"] for i in f.issues()], [1])
+
+    def test_paging_stops_on_short_page(self):
+        def issue(n, pr=False):
+            return {"number": n, "title": "t", "state": "open", "labels": [], "html_url": "u",
+                    **({"pull_request": {"url": "u"}} if pr else {})}
+        for kind, size_key in (("github", "per_page"), ("gitlab", "per_page"), ("forgejo", "limit")):
+            f = pmtrack.Forge(kind, "https://f", "o/r")
+            f.page_size = 2
+            if kind == "gitlab":
+                f.normalise = lambda i: i
+            # GitLab's issue list has no merge requests in it.
+            pages = iter([[issue(1), issue(2, pr=kind != "gitlab")], [issue(3)]])
+            seen = []
+            f._get = lambda path, params: (seen.append(params), next(pages))[1]
+            want = [1, 2, 3] if kind == "gitlab" else [1, 3]
+            self.assertEqual([i["number"] for i in f.issues()], want)
+            self.assertEqual([(p["page"], p[size_key]) for p in seen], [(1, 2), (2, 2)])
 
 
     def test_file_url(self):
@@ -143,6 +161,18 @@ class TestStatus(Base):
         self.assertEqual(s["#6"], "dropped")
         self.assertEqual(s["#9"], "ready")
         self.assertEqual(s["plan:auth"], "ready")   # #9 is ready
+
+    def test_every_dependency_gets_a_status(self):
+        saved = dict(ISSUES)
+        ISSUES["o/app"] = saved["o/app"] + [
+            issue(10, "Both", fm(depends=["#3", "lib#5"]))]
+        ISSUES["o/lib"] = saved["o/lib"] + [issue(5, "Shipped", state="closed")]
+        try:
+            p = self.project()
+        finally:
+            ISSUES.update(saved)
+        self.assertEqual(p.nodes["#10"].status, "blocked")
+        self.assertEqual(p.nodes["lib#5"].status, "done")
 
     def test_remote_resolved_lazily(self):
         p = self.project()
@@ -180,6 +210,7 @@ class TestStatus(Base):
     def test_url_ref(self):
         p = self.project()
         self.assertEqual(p.resolve("https://g.example/o/lib/-/issues/4"), "lib#4")
+        self.assertEqual(p.resolve("https://g.example/o/lib/-/work_items/4"), "lib#4")
         self.assertEqual(p.resolve("https://f.example/o/app/issues/3"), "#3")
         self.assertIsNone(p.resolve("https://elsewhere/x/y/issues/1"))
 

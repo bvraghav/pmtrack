@@ -98,7 +98,7 @@ class Forge:
     """Reads issues through each forge's REST API, normalised to one shape:
     number, title, body, state (open|closed), labels, assignees, url, updated.
     """
-    page_size = 50
+    page_size = 50              # Forgejo's maximum; GitHub and GitLab allow 100
 
     def __init__(self, kind, url, repo, token=None):
         self.kind, self.url, self.repo, self.token = kind, url.rstrip("/"), repo, token
@@ -143,13 +143,14 @@ class Forge:
                     "state": "all", "type": "issues", "limit": self.page_size, "page": page})
             elif self.kind == "github":
                 batch = self._get("/repos/%s/issues" % self.repo, {
-                    "state": "all", "per_page": 100, "page": page})
+                    "state": "all", "per_page": self.page_size, "page": page})
             else:
                 batch = self._get("/projects/%s/issues" % urllib.parse.quote(self.repo, safe=""),
-                                  {"state": "all", "per_page": 100, "page": page})
-            if not batch:
-                return out
+                                  {"state": "all", "per_page": self.page_size, "page": page})
+            # GitHub pages count pull requests too, so filter after paging.
             out += [self.normalise(i) for i in batch if not i.get("pull_request")]
+            if len(batch) < self.page_size:
+                return out
             page += 1
 
     def normalise(self, i):
@@ -266,12 +267,13 @@ class Project:
 
     # -- references
     def resolve(self, ref, alias=""):
-        """Ref forms: id, #12, alias:id, alias#12, or a full issue URL."""
+        """Ref forms: id, #12, alias:id, alias#12, or a full issue URL (GitLab
+        links issues as -/issues/N or, lately, -/work_items/N)."""
         ref = ref.strip()
         if "://" in ref:
             for a, c in [("", self.cfg)] + list(self.cfg["remotes"].items()):
                 web = "%s/%s/" % (c["url"].rstrip("/"), c["repo"])
-                m = re.match(re.escape(web) + r"(?:-/)?issues/(\d+)\b", ref)
+                m = re.match(re.escape(web) + r"(?:-/)?(?:issues|work_items)/(\d+)\b", ref)
                 if m:
                     return self.resolve("%s#%s" % (a, m.group(1)))
             return None
@@ -317,7 +319,9 @@ class Project:
             self.edges[key], self.unresolved[key] = deps, missing
             for r in missing:
                 self.problems.append((key, "unresolved dependency `%s`" % r))
-            dep_ok = all(status(k) in ("done", "dropped") for k in deps) and not missing
+            # Every dependency gets a status, even after one that isn't done:
+            # the review shows each of them.
+            dep_ok = all([status(k) in ("done", "dropped") for k in deps]) and not missing
             if n.kind == "plan":
                 ms = [m for m in self.members(n)]
                 live = [status(m.key) for m in ms if status(m.key) != "dropped"]
