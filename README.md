@@ -203,12 +203,19 @@ schedule as well as on push. There are two Woodpecker examples:
 - `examples/woodpecker.yml`: CI commits `progress/` and the plan docs'
   progress blocks back to the branch it ran on.
 
+The same commit-back pipeline for the other forges:
+
+- `examples/github-actions.yml` (copy to `.github/workflows/pm.yml`): the
+  job's own token reads the issues and pushes, so no secret is needed.
+- `examples/gitlab-ci.yml` (copy to `.gitlab-ci.yml`): needs a masked
+  CI/CD variable `PM_TOKEN`, a project access token with `read_api` and
+  `write_repository`, and a pipeline schedule.
+
 ## Status of forge support
 
-Forgejo is tested against a live server. Gitea uses the same API. The
-GitHub and GitLab readers follow their documented APIs but haven't been
-run against them yet, and neither has the rendering of issue frontmatter
-or `xychart-beta` there.
+Forgejo, GitHub and GitLab are tested against live repos (GitHub and
+GitLab with a test project, `bvraghav/pm-dummy` on each). Gitea uses the
+same API as Forgejo.
 
 ## Licence
 

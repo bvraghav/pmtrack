@@ -136,6 +136,12 @@ class TestForge(unittest.TestCase):
             self.assertEqual([(p["page"], p[size_key]) for p in seen], [(1, 2), (2, 2)])
 
 
+    def test_unreachable_forge_is_a_clean_error(self):
+        f = pmtrack.Forge("forgejo", "https://nowhere.invalid", "o/r")
+        with self.assertRaises(SystemExit) as e:
+            f.issues()
+        self.assertIn("can't reach https://nowhere.invalid/api/v1", str(e.exception))
+
     def test_file_url(self):
         u = lambda kind: pmtrack.Forge(kind, "https://x.example/", "o/r").file_url("docs/a.md", "dev")
         self.assertEqual(u("forgejo"), "https://x.example/o/r/src/branch/dev/docs/a.md")

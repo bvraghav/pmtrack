@@ -134,6 +134,8 @@ class Forge:
                 return json.load(r)
         except urllib.error.HTTPError as e:
             raise SystemExit("%s %s: HTTP %s %s" % (self.kind, self.repo, e.code, e.reason))
+        except urllib.error.URLError as e:
+            raise SystemExit("%s %s: can't reach %s (%s)" % (self.kind, self.repo, base, e.reason))
 
     def issues(self):
         out, page = [], 1
