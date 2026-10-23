@@ -1,0 +1,53 @@
+# pmtrack for GitHub Actions: copy to .github/workflows/pm.yml in the project.
+#
+# Runs on push to the default branch, hourly (issue edits don't trigger
+# workflows) and by hand, and commits progress/ and the plan docs' progress
+# blocks back to the branch.
+#
+# No secret is needed: the job's own token reads this repo's issues and
+# pushes the commit (see permissions below). Its pushes don't start new
+# workflow runs, so there is no loop. If .pm.yml has remotes with private
+# issues, add a secret PM_TOKEN that can read them; it's used instead.
+# GitHub pauses scheduled workflows in a public repo after 60 days with no
+# activity; re-enable it in the Actions tab.
+# pmtrack is installed by tag from its GitHub mirror (the main repo is on a
+# private network): to update, change the tag below.
+name: pmtrack
+
+on:
+  push:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: read
+
+concurrency:
+  group: pmtrack-${{ github.ref }}
+
+env:
+  PMTRACK: git+https://github.com/bvraghav/pmtrack@v0.1.2
+
+jobs:
+  review:
+    # Push runs only on the default branch, whatever it's called.
+    if: github.event_name != 'push' || github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install -q "$PMTRACK"
+      - run: pmtrack templates --check
+      - name: review
+        env:
+          PM_TOKEN: ${{ secrets.PM_TOKEN || github.token }}
+        run: |
+          pmtrack review
+          git add -A
+          git diff --cached --quiet && exit 0
+          git -c user.name=pmtrack -c user.email=pmtrack@noreply.invalid commit -qm "progress: update review [skip ci]"
+          git push -q origin "HEAD:${GITHUB_REF_NAME}"

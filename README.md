@@ -36,7 +36,10 @@ pm:
 ```
 
 If a forge renders issue frontmatter badly, the same mapping can sit in a
-fenced ` ```yaml ` block anywhere in the body instead.
+fenced ` ```yaml ` block anywhere in the body instead. GitHub does: it
+shows issue frontmatter as a rule and a heading, so use the fence there.
+GitLab shows frontmatter as a code block, and Forgejo folds it into a
+collapsed table.
 
 Issues without frontmatter are still tracked; they just have no
 dependencies.
@@ -175,6 +178,10 @@ pip install "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.2"
 uvx --from "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.2" pmtrack review
 ```
 
+The same tags are on a read-only mirror,
+`git+https://github.com/bvraghav/pmtrack@v0.1.2`, for machines (such as
+GitHub's and GitLab's CI runners) that can't reach the Forgejo server.
+
 pmtrack is a single file, so copying `pmtrack.py` (from
 `…/pm-bot/pmtrack/raw/tag/v0.1.2/pmtrack.py`) and installing pyyaml works
 too. It isn't on PyPI.
@@ -203,12 +210,19 @@ schedule as well as on push. There are two Woodpecker examples:
 - `examples/woodpecker.yml`: CI commits `progress/` and the plan docs'
   progress blocks back to the branch it ran on.
 
+The same commit-back pipeline for the other forges:
+
+- `examples/github-actions.yml` (copy to `.github/workflows/pm.yml`): the
+  job's own token reads the issues and pushes, so no secret is needed.
+- `examples/gitlab-ci.yml` (copy to `.gitlab-ci.yml`): needs a masked
+  CI/CD variable `PM_TOKEN`, a project access token with `read_api` and
+  `write_repository`, and a pipeline schedule.
+
 ## Status of forge support
 
-Forgejo is tested against a live server. Gitea uses the same API. The
-GitHub and GitLab readers follow their documented APIs but haven't been
-run against them yet, and neither has the rendering of issue frontmatter
-or `xychart-beta` there.
+Forgejo, GitHub and GitLab are tested against live repos (GitHub and
+GitLab with a test project, `bvraghav/pm-dummy` on each), and the review
+charts draw on all three. Gitea uses the same API as Forgejo.
 
 ## Licence
 
