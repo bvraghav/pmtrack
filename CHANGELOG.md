@@ -6,6 +6,8 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-10-23
+
 ### Added
 
 - `examples/github-actions.yml` and `examples/gitlab-ci.yml`: the
@@ -26,6 +28,7 @@ follow [Semantic Versioning](https://semver.org/).
 - The README recommends the fence for issue metadata.
 - GitHub and GitLab are read with the same page size as Forgejo (50),
   and paging stops on a short page.
+- Examples and README install `v0.1.3`.
 
 ### Fixed
 
@@ -93,7 +96,8 @@ First release.
   committing `progress/` back.
 - Install from a git tag with pip or uv; `pmtrack` command.
 
-[Unreleased]: https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/compare/v0.1.2...develop
+[Unreleased]: https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/compare/v0.1.3...develop
+[0.1.3]: https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/compare/v0.1.2...v0.1.3
 [0.1.2]: https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/compare/v0.1.1...v0.1.2
 [0.1.1]: https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/src/tag/v0.1.1
 [0.1.0]: https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/src/tag/v0.1.0

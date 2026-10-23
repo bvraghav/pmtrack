@@ -18,7 +18,7 @@
 # record; if it's stale, use Repair in the repo settings.
 # pmtrack is installed by tag: to update, change the tag below.
 variables:
-  - &pmtrack "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.2"
+  - &pmtrack "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.3"
 
 when:
   - event: [cron, manual]
