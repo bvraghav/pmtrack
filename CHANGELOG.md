@@ -6,6 +6,35 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `examples/github-actions.yml` and `examples/gitlab-ci.yml`: the
+  commit-back pipeline for GitHub Actions and GitLab CI, run on a test
+  project on each.
+- `docs/templates/{github,gitlab,forgejo,gitea}.md`: how each forge shows
+  issue metadata, the defaults to use there, and what pmtrack accepts.
+- A read-only mirror at `github.com/bvraghav/pmtrack`, for CI runners
+  that can't reach the Forgejo server; the GitHub and GitLab examples
+  install from it.
+
+### Changed
+
+- `pmtrack templates` puts the issue's `pm` block in a fenced
+  ` ```yaml ` block in `.github/ISSUE_TEMPLATE/`, since GitHub shows
+  issue frontmatter as a rule and a heading. GitLab templates keep
+  frontmatter. Both forms are still read.
+- The README recommends the fence for issue metadata.
+- GitHub and GitLab are read with the same page size as Forgejo (50),
+  and paging stops on a short page.
+
+### Fixed
+
+- A dependency listed after one that isn't done showed as `?` instead of
+  its status.
+- GitLab `-/work_items/N` links in `depends` didn't resolve.
+- A forge that can't be reached stops the review with one line instead
+  of a traceback.
+
 ## [0.1.2] - 2026-10-23
 
 ### Added
