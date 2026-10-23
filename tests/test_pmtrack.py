@@ -367,7 +367,12 @@ pm:
         gl = (self.root / ".gitlab/issue_templates/actionable.md").read_text()
         self.assertTrue(gh.startswith("---\n# generated"))
         self.assertIn("name: Actionable", gh)
-        self.assertIn("---\npm:\n  id: ''", gh)
+        # GitHub's template has the issue's pm block fenced, not as frontmatter.
+        body = gh.split("\n---\n", 1)[1]
+        self.assertTrue(body.startswith("```yaml\npm:\n  id: ''"))
+        self.assertNotIn("---", body)
+        meta, err = pmtrack.parse_meta(body)
+        self.assertEqual((meta["pm"]["depends"], err), ([], None))
         self.assertTrue(gl.startswith("---\npm:"))
         self.assertTrue(gl.rstrip().endswith('/label ~"actionable"'))
         meta, _ = pmtrack.parse_meta(gl)

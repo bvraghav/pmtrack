@@ -23,25 +23,30 @@ never clashes with pandoc or md-preview keys (`title`, `md-preview-*`).
 
 ### Actionables: issues
 
-An issue body may start with frontmatter:
+An issue carries its metadata in a fenced ` ```yaml ` block, anywhere in
+the body:
 
+````markdown
 ```yaml
----
 pm:
   id: login-form            # stable name, unique in the repo (optional)
   depends: [db-schema, lib:token-api, "#12"]
   plan: auth                # plan ids this belongs to (optional)
   weight: 2                 # share of progress, default 1
----
 ```
+````
 
-If a forge renders issue frontmatter badly, the same mapping can sit in a
-fenced ` ```yaml ` block anywhere in the body instead. GitHub does: it
-shows issue frontmatter as a rule and a heading, so use the fence there.
-GitLab shows frontmatter as a code block, and Forgejo folds it into a
-collapsed table.
+The same mapping also works as frontmatter at the start of the body
+(`---` … `---`): pmtrack reads both, so either is fine for the tracking.
+Frontmatter isn't recommended for issues, though, because of how forges
+show it: GitHub as a rule and a heading, Forgejo as a collapsed table.
+The fence reads as a code block everywhere. GitLab shows frontmatter as a
+code block too, the same as the fence, so either is fine there. What each
+forge shows, and the defaults to use there, is in `docs/templates/`
+([GitHub](docs/templates/github.md), [GitLab](docs/templates/gitlab.md),
+[Forgejo](docs/templates/forgejo.md), [Gitea](docs/templates/gitea.md)).
 
-Issues without frontmatter are still tracked; they just have no
+Issues without metadata are still tracked; they just have no
 dependencies.
 
 ### Plans: docs
@@ -142,9 +147,10 @@ pm:                    # copied into each new issue
 ```
 
 `pmtrack templates` writes `.github/ISSUE_TEMPLATE/<name>.md` (read by
-GitHub, Gitea and Forgejo) and `.gitlab/issue_templates/<name>.md`
-(GitLab: labels and assignees become `/label` and `/assign` quick
-actions). `--check` exits 1 if they're out of date. Symlinks don't work:
+GitHub, Gitea and Forgejo; the `pm` block goes into a fenced ` ```yaml `
+block) and `.gitlab/issue_templates/<name>.md` (GitLab: the `pm` block
+stays frontmatter, and labels and assignees become `/label` and `/assign`
+quick actions). `--check` exits 1 if they're out of date. Symlinks don't work:
 forges read a symlink as its target path.
 
 ## Configuration: `.pm.yml`
