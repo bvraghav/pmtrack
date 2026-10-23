@@ -10,7 +10,8 @@
 # issues, add a secret PM_TOKEN that can read them; it's used instead.
 # GitHub pauses scheduled workflows in a public repo after 60 days with no
 # activity; re-enable it in the Actions tab.
-# pmtrack is installed by tag: to update, change the tag below.
+# pmtrack is installed by tag from its GitHub mirror (the main repo is on a
+# private network): to update, change the tag below.
 name: pmtrack
 
 on:
@@ -27,7 +28,7 @@ concurrency:
   group: pmtrack-${{ github.ref }}
 
 env:
-  PMTRACK: git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.2
+  PMTRACK: git+https://github.com/bvraghav/pmtrack@v0.1.2
 
 jobs:
   review:

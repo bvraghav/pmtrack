@@ -11,9 +11,10 @@
 #             (plus read access to any remotes in .pm.yml). Mark it masked.
 #             The job's own CI_JOB_TOKEN can't read issues or push.
 # "[skip ci]" in the commit stops the push from starting another pipeline.
-# pmtrack is installed by tag: to update, change the tag below.
+# pmtrack is installed by tag from its GitHub mirror (the main repo is on a
+# private network): to update, change the tag below.
 variables:
-  PMTRACK: "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.2"
+  PMTRACK: "git+https://github.com/bvraghav/pmtrack@v0.1.2"
 
 pmtrack:
   image: python:3.13-alpine

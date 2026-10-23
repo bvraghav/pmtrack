@@ -36,7 +36,9 @@ pm:
 ```
 
 If a forge renders issue frontmatter badly, the same mapping can sit in a
-fenced ` ```yaml ` block anywhere in the body instead.
+fenced ` ```yaml ` block anywhere in the body instead. GitHub does: it
+shows issue frontmatter as a rule and a heading, so use the fence there.
+GitLab shows frontmatter as a code block, and Forgejo and Gitea hide it.
 
 Issues without frontmatter are still tracked; they just have no
 dependencies.
@@ -174,6 +176,10 @@ pip install "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.2"
 # or run it without installing:
 uvx --from "git+https://forgejo.lab.bvraghav.com/pm-bot/pmtrack@v0.1.2" pmtrack review
 ```
+
+The same tags are on a read-only mirror,
+`git+https://github.com/bvraghav/pmtrack@v0.1.2`, for machines (such as
+GitHub's and GitLab's CI runners) that can't reach the Forgejo server.
 
 pmtrack is a single file, so copying `pmtrack.py` (from
 `…/pm-bot/pmtrack/raw/tag/v0.1.2/pmtrack.py`) and installing pyyaml works
