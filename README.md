@@ -221,8 +221,8 @@ The same commit-back pipeline for the other forges:
 ## Status of forge support
 
 Forgejo, GitHub and GitLab are tested against live repos (GitHub and
-GitLab with a test project, `bvraghav/pm-dummy` on each). Gitea uses the
-same API as Forgejo.
+GitLab with a test project, `bvraghav/pm-dummy` on each), and the review
+charts draw on all three. Gitea uses the same API as Forgejo.
 
 ## Licence
 
