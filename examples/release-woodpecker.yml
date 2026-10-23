@@ -1,0 +1,39 @@
+# Forge release from CHANGELOG.md, for Woodpecker on Forgejo or Gitea:
+# copy to .woodpecker/release.yml in the project.
+#
+# On a tag vX.Y.Z it creates the release "<repo> X.Y.Z", with the notes
+# from the "## [X.Y.Z]" section of CHANGELOG.md (Keep a Changelog format).
+# If the tag already has a release it does nothing; if CHANGELOG.md has no
+# section for the version it fails rather than publish empty notes.
+#
+# Needs one secret, allowed on the tag event:
+#   release_token: a forge token with repository write on this repo
+#                  (pmtrack's pm_token will do).
+# Shell variables are written $${VAR}, and awk's $$0, so Woodpecker leaves
+# them to the shell.
+when:
+  - event: tag
+    ref: refs/tags/v*
+
+steps:
+  - name: release
+    image: alpine:3.20
+    environment:
+      RELEASE_TOKEN:
+        from_secret: release_token
+    commands:
+      - apk add -q curl jq
+      - TAG="$${CI_COMMIT_TAG}"
+      - VER="$${TAG#v}"
+      - API="$${CI_FORGE_URL}/api/v1/repos/$${CI_REPO}/releases"
+      - 'AUTH="Authorization: token $${RELEASE_TOKEN}"'
+      # 200: already released; 404: go ahead; anything else is a problem.
+      - 'code=$(curl -s -o /dev/null -w "%{http_code}" -H "$${AUTH}" "$${API}/tags/$${TAG}")'
+      - 'if [ "$${code}" = 200 ]; then echo "release $${TAG} exists; nothing to do"; exit 0; fi'
+      - '[ "$${code}" = 404 ] || { echo "checking for release $${TAG}: HTTP $${code}"; exit 1; }'
+      - 'awk -v h="## [$${VER}]" ''index($$0, h) == 1 {f = 1; next} f && /^(## \[|\[[^]]*\]: )/ {exit} f'' CHANGELOG.md > /tmp/notes.md'
+      - 'grep -q "[^[:space:]]" /tmp/notes.md || { echo "CHANGELOG.md has no section for $${VER}"; exit 1; }'
+      - 'printf "\nFull changelog: [CHANGELOG.md](%s/src/tag/%s/CHANGELOG.md)\n" "$${CI_REPO_URL}" "$${TAG}" >> /tmp/notes.md'
+      - 'jq -n --arg tag "$${TAG}" --arg name "$${CI_REPO_NAME} $${VER}" --rawfile body /tmp/notes.md ''{tag_name: $tag, name: $name, body: $body}'' > /tmp/release.json'
+      - 'curl -sf -o /dev/null -X POST -H "$${AUTH}" -H "Content-Type: application/json" --data @/tmp/release.json "$${API}"'
+      - echo "released $${TAG}"

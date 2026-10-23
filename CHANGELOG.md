@@ -6,6 +6,17 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Release pipelines for Woodpecker (Forgejo, Gitea), GitHub Actions and
+  GitLab CI (`examples/release-*.yml`): a `vX.Y.Z` tag becomes a forge
+  release, with that version's section of `CHANGELOG.md` as its notes.
+
+### Changed
+
+- pmtrack's own pipeline creates its Forgejo release on a tag, after the
+  tests.
+
 ## [0.1.3] - 2026-10-23
 
 ### Added

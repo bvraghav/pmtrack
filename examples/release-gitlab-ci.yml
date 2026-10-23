@@ -1,0 +1,26 @@
+# Forge release from CHANGELOG.md, for GitLab CI: add this job to the
+# project's .gitlab-ci.yml (or include this file from it).
+#
+# On a tag vX.Y.Z it creates the release "<project> X.Y.Z", with the notes
+# from the "## [X.Y.Z]" section of CHANGELOG.md (Keep a Changelog format).
+# If the tag already has a release it does nothing; if CHANGELOG.md has no
+# section for the version it fails rather than publish empty notes.
+# No variable is needed: the job's own CI_JOB_TOKEN may create releases.
+release:
+  image: alpine:3.20
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v/
+  script:
+    - apk add -q curl jq
+    - TAG="$CI_COMMIT_TAG"
+    - VER="${TAG#v}"
+    - API="$CI_API_V4_URL/projects/$CI_PROJECT_ID/releases"
+    # 200: already released. Otherwise create it; a real problem fails there.
+    - 'code=$(curl -s -o /dev/null -w "%{http_code}" -H "JOB-TOKEN: $CI_JOB_TOKEN" "$API/$TAG")'
+    - 'if [ "$code" = 200 ]; then echo "release $TAG exists; nothing to do"; exit 0; fi'
+    - 'awk -v h="## [$VER]" ''index($0, h) == 1 {f = 1; next} f && /^(## \[|\[[^]]*\]: )/ {exit} f'' CHANGELOG.md > notes.md'
+    - 'grep -q "[^[:space:]]" notes.md || { echo "CHANGELOG.md has no section for $VER"; exit 1; }'
+    - 'printf "\nFull changelog: [CHANGELOG.md](%s/-/blob/%s/CHANGELOG.md)\n" "$CI_PROJECT_URL" "$TAG" >> notes.md'
+    - 'jq -n --arg tag "$TAG" --arg name "$CI_PROJECT_NAME $VER" --rawfile desc notes.md ''{tag_name: $tag, name: $name, description: $desc}'' > release.json'
+    - 'curl -sf -o /dev/null -X POST -H "JOB-TOKEN: $CI_JOB_TOKEN" -H "Content-Type: application/json" --data @release.json "$API"'
+    - echo "released $TAG"

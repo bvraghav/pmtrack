@@ -224,6 +224,25 @@ The same commit-back pipeline for the other forges:
   CI/CD variable `PM_TOKEN`, a project access token with `read_api` and
   `write_repository`, and a pipeline schedule.
 
+### Releases from the changelog
+
+These pipelines aren't about the review: they turn a version tag into a
+forge release. Push a tag `vX.Y.Z`, and CI creates the release
+"`<repo> X.Y.Z`" with that version's `## [X.Y.Z]` section of
+`CHANGELOG.md` ([Keep a Changelog](https://keepachangelog.com/) format)
+as its notes. A tag that already has a release is left alone; a version
+with no changelog section fails the job instead of publishing empty
+notes.
+
+| Forge and CI | Copy | Needs |
+|---|---|---|
+| Forgejo or Gitea, Woodpecker | `examples/release-woodpecker.yml` to `.woodpecker/release.yml` | secret `release_token` (repository write), allowed on the tag event |
+| GitHub Actions | `examples/release-github-actions.yml` to `.github/workflows/release.yml` | nothing: the job's token may create releases |
+| GitLab CI | the job in `examples/release-gitlab-ci.yml` into `.gitlab-ci.yml` | nothing: `CI_JOB_TOKEN` may create releases |
+
+pmtrack releases itself this way: its own pipeline runs the Woodpecker
+step after the tests on a tag.
+
 ## Status of forge support
 
 Forgejo, GitHub and GitLab are tested against live repos (GitHub and

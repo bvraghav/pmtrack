@@ -1,0 +1,36 @@
+# Forge release from CHANGELOG.md, for GitHub Actions: copy to
+# .github/workflows/release.yml in the project.
+#
+# On a tag vX.Y.Z it creates the release "<repo> X.Y.Z", with the notes
+# from the "## [X.Y.Z]" section of CHANGELOG.md (Keep a Changelog format).
+# If the tag already has a release it does nothing; if CHANGELOG.md has no
+# section for the version it fails rather than publish empty notes.
+# No secret is needed: the job's own token may create releases.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "release $TAG exists; nothing to do"; exit 0
+          fi
+          VER="${TAG#v}"
+          awk -v h="## [$VER]" 'index($0, h) == 1 {f = 1; next} f && /^(## \[|\[[^]]*\]: )/ {exit} f' CHANGELOG.md > notes.md
+          grep -q "[^[:space:]]" notes.md || { echo "CHANGELOG.md has no section for $VER"; exit 1; }
+          printf "\nFull changelog: [CHANGELOG.md](%s/%s/blob/%s/CHANGELOG.md)\n" \
+            "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$TAG" >> notes.md
+          gh release create "$TAG" --verify-tag --title "${GITHUB_REPOSITORY#*/} $VER" --notes-file notes.md
