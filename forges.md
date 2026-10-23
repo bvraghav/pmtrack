@@ -1,41 +1,47 @@
 # ▶ Forges
 
-_Plan `forges` · [doc](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/src/branch/develop/docs/forges.md) · data as of 2026-10-22 23:36 UTC · [all subsets](README.md)_
+_Plan `forges` · [doc](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/src/branch/develop/docs/forges.md) · data as of 2026-10-23 04:36 UTC · [all subsets](README.md)_
 
-**25% done** · ✓ 1 done · ▶ 0 active · ○ 2 ready · ✕ 1 blocked
+**67% done** · ✓ 4 done · ▶ 0 active · ○ 1 ready · ✕ 1 blocked
 
 ```mermaid
 %%{init: {"themeVariables": {"pie1": "#0ca30c", "pie2": "#eda100", "pie3": "#d03b3b", "pieOpacity": "1", "pieSectionTextColor": "#000", "pieStrokeColor": "#fff", "pieStrokeWidth": "2px", "pieOuterStrokeWidth": "0px"}}}%%
 pie showData title Items by status
-  "✓ done" : 1
-  "○ ready" : 2
+  "✓ done" : 4
+  "○ ready" : 1
   "✕ blocked" : 1
 ```
 
 | Item | Status | Ticked | Depends on |
 |---|---|--:|---|
 | [#3](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/3) Check that Forgejo draws the review charts | ✓ done | 3/4 |  |
-| [#4](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/4) Run the GitHub reader against a live repo | ○ ready | 0/2 |  |
-| [#5](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/5) Run the GitLab reader against a live project | ○ ready | 0/2 |  |
-| [#6](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/6) Check frontmatter and Mermaid rendering on GitHub and GitLab | ✕ blocked | 0/2 | ○ #4, ○ #5 |
+| [#4](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/4) Run the GitHub reader against a live repo | ✓ done | 2/2 |  |
+| [#5](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/5) Run the GitLab reader against a live project | ✓ done | 2/2 |  |
+| [#6](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/6) Check frontmatter and Mermaid rendering on GitHub and GitLab | ✓ done | 2/2 | ✓ #4, ✓ #5 |
+| [#12](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/12) Fenced pm block in the generated issue template | ○ ready | 0/3 | ✓ #6 |
+| [#13](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/13) Per-forge template guides under docs/templates | ✕ blocked | 0/3 | ○ #12 |
 
 ## Changes
 
-From 2026-10-22 20:30 to 2026-10-22 23:36 UTC:
+From 2026-10-22 20:30 to 2026-10-23 04:36 UTC:
 
 - ✓ done: [#3](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/3) Check that Forgejo draws the review charts
+- ✓ done: [#4](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/4) Run the GitHub reader against a live repo
+- ✓ done: [#5](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/5) Run the GitLab reader against a live project
+- ✓ done: [#6](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/6) Check frontmatter and Mermaid rendering on GitHub and GitLab
+- new (ready): [#12](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/12) Fenced pm block in the generated issue template
+- new (blocked): [#13](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/13) Per-forge template guides under docs/templates
 
 ## Needs attention
 
 ### ✕ Blocked
 
-- [#6](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/6) Check frontmatter and Mermaid rendering on GitHub and GitLab, waiting on ○ [#4](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/4) Run the GitHub reader against a live repo, ○ [#5](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/5) Run the GitLab reader against a live project
+- [#13](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/13) Per-forge template guides under docs/templates, waiting on ○ [#12](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/12) Fenced pm block in the generated issue template
 
 
 ## Next up
 
-- ○ [#4](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/4) Run the GitHub reader against a live repo (unblocks 2)
-- ○ [#5](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/5) Run the GitLab reader against a live project (unblocks 2)
+- ○ [#12](https://forgejo.lab.bvraghav.com/pm-bot/pmtrack/issues/12) Fenced pm block in the generated issue template (unblocks 1)
 
 ## Dependency graph
 
@@ -43,12 +49,16 @@ _Legend: ✓ done · ▶ active (assigned or partly ticked) · ○ ready (nothin
 
 ```mermaid
 flowchart LR
-  n0["✓ #3 Check that Forgejo draws the re…"]:::done
-  n1["○ #4 Run the GitHub reader against a…"]:::ready
-  n2["○ #5 Run the GitLab reader against a…"]:::ready
-  n3["✕ #6 Check frontmatter and Mermaid r…"]:::blocked
-  n1 --> n3
-  n2 --> n3
+  n0["○ #12 Fenced pm block in the generate…"]:::ready
+  n1["✕ #13 Per-forge template guides under…"]:::blocked
+  n2["✓ #3 Check that Forgejo draws the re…"]:::done
+  n3["✓ #4 Run the GitHub reader against a…"]:::done
+  n4["✓ #5 Run the GitLab reader against a…"]:::done
+  n5["✓ #6 Check frontmatter and Mermaid r…"]:::done
+  n5 --> n0
+  n0 --> n1
+  n3 --> n5
+  n4 --> n5
   classDef done fill:#0ca30c,color:#000,stroke:#0ca30c
   classDef active fill:#2a78d6,color:#fff,stroke:#2a78d6
   classDef ready fill:#eda100,color:#000,stroke:#eda100
@@ -59,4 +69,18 @@ flowchart LR
 
 ## Trend
 
-_The trend starts once there are two days of history._
+```mermaid
+%%{init: {"themeVariables": {"xyChart": {"backgroundColor": "#ffffff", "titleColor": "#222222", "plotColorPalette": "#0ca30c,#ffffff,#d03b3b,#ffffff,#898781,#2a78d6", "xAxisLabelColor": "#222222", "xAxisTitleColor": "#222222", "xAxisTickColor": "#222222", "xAxisLineColor": "#222222", "yAxisLabelColor": "#222222", "yAxisTitleColor": "#222222", "yAxisTickColor": "#222222", "yAxisLineColor": "#222222"}}, "xyChart": {"height": 360}}}%%
+xychart-beta
+  title "plan:forges: items done and scope"
+  x-axis ["10-22 · 1/4", "10-23 · 4/6"]
+  y-axis "items" 0 --> 8
+  bar [0, 3]
+  bar [0, 0]
+  bar [0, 0]
+  bar [0, 0]
+  line [4, 6]
+  line [1, 4]
+```
+
+_Grey line: items in scope. Blue line: items done, weighted, with partial credit for ticked boxes. Green bars: items done that day. Red bars below 0: items done that were lost that day (reopened, or boxes unticked). A step up in the grey line means scope grew._
