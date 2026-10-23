@@ -38,7 +38,8 @@ pm:
 If a forge renders issue frontmatter badly, the same mapping can sit in a
 fenced ` ```yaml ` block anywhere in the body instead. GitHub does: it
 shows issue frontmatter as a rule and a heading, so use the fence there.
-GitLab shows frontmatter as a code block, and Forgejo and Gitea hide it.
+GitLab shows frontmatter as a code block, and Forgejo folds it into a
+collapsed table.
 
 Issues without frontmatter are still tracked; they just have no
 dependencies.
